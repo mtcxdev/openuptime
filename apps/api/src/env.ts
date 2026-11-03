@@ -16,7 +16,9 @@ export type Bindings = {
   GITHUB_CLIENT_SECRET?: string;
   /** Cloudflare Queue the cron fans checks out to. Unset locally: checks then run inline. */
   CHECK_QUEUE?: CheckQueue;
-  /** Cloudflare Email Service `send_email` binding. Unset (local dev): emails are logged instead of sent. */
+  /** Brevo transactional email API key. Preferred on Cloudflare Workers (HTTPS; no SMTP socket required). */
+  BREVO_API_KEY?: string;
+  /** Cloudflare Email Service `send_email` binding. Optional fallback for deployments that have it enabled. */
   EMAIL?: { send(msg: { from: string | { email: string; name: string }; to: string; subject: string; html?: string; text?: string; headers?: Record<string, string> }): Promise<{ messageId?: string }> };
   /** Sender address on a domain onboarded to Email Sending, e.g. "alerts@example.com". */
   EMAIL_FROM?: string;

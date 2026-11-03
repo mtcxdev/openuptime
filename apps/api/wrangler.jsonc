@@ -4,45 +4,14 @@
   "main": "src/worker.ts",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
-  // Optional: run next to your Postgres origin (every query is a round trip, and one request makes several):
-  // "placement": { "host": "your-postgres-host:5432" },
   "triggers": { "crons": ["* * * * *"] },
-  // Cron leases due monitors and fans them out here, 25 monitors per message.
-  // Create once: wrangler queues create openuptime-checks
-  "queues": {
-    "producers": [{ "binding": "CHECK_QUEUE", "queue": "openuptime-checks" }],
-    "consumers": [
-      {
-        "queue": "openuptime-checks",
-        "max_batch_size": 1,
-        "max_batch_timeout": 1,
-        "max_retries": 2,
-        "max_concurrency": 20
-      }
-    ]
-  },
-  // Route the API under the web domain so session cookies stay same-origin. Set your own domain; zone_name is the
-  // zone (apex domain). Without a zone, leave this out: the web Worker forwards /api/* to this Worker.
-  "routes": [{ "pattern": "status.example.com/api/*", "zone_name": "example.com" }],
-  // Create one, then uncomment and paste its id:
-  //   wrangler hyperdrive create openuptime-prod --connection-string="postgres://…"
-  // "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<your-hyperdrive-config-id>" }],
-  // Cloudflare Email Service: onboard your sending domain in the dashboard (Email Sending), then set EMAIL_FROM.
-  "send_email": [{ "name": "EMAIL", "remote": true }],
+  "routes": [{ "pattern": "status.mtcx.store/api/*", "zone_name": "mtcx.store" }],
+  "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "1a4c025f1cba4c06a84dfd652e7b9fb6" }],
   "vars": {
-    // sender address; optional (without it emails are written to the log)
-    "EMAIL_FROM": "alerts@example.com",
-    // days a team invitation stays valid (default 7)
+    "EMAIL_FROM": "alerts@mtcx.store",
     "INVITE_TTL_DAYS": "7",
-    // "DISABLE_SIGNUP": "true",  // closes registration; invited people can still join
-    // "LEGAL_LINKS": "true",  // sign-up says "you agree to the Terms / Privacy" (replace the bundled /terms and /privacy first)
-    // "TURNSTILE_SITE_KEY": "0x4AAA…",  // Cloudflare Turnstile on sign-up; also `wrangler secret put TURNSTILE_SECRET_KEY`
-    // "ALLOW_PRIVATE_TARGETS": "true",  // monitors / webhooks may target private addresses (default: refused)
-    // iOS push (APNs): "APNS_KEY_ID", "APNS_TEAM_ID", "APNS_BUNDLE_ID" may go here; put the .p8 with `wrangler secret put APNS_KEY`
-    // "CHECK_USER_AGENT": "OpenUptime/0.1 (+https://status.example.com)",
-    // public origin of the site: cookies, OAuth, links in emails (both the same value)
-    "BETTER_AUTH_URL": "https://status.example.com",
-    "WEB_ORIGIN": "https://status.example.com"
+    "BETTER_AUTH_URL": "https://status.mtcx.store",
+    "WEB_ORIGIN": "https://status.mtcx.store",
+    "CHECK_USER_AGENT": "OpenUptime/0.1 (+https://status.mtcx.store)"
   }
-  // secrets: pnpm exec wrangler secret put BETTER_AUTH_SECRET  (and CRON_SECRET, GITHUB_CLIENT_*)
 }

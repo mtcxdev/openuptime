@@ -4,7 +4,7 @@ import { configureEmail, sendEmail, setMailTransport } from "./email";
 const msg = { to: "a@example.com", subject: "s", html: "<p>x</p>", text: "x", headers: { "List-Unsubscribe": "<https://x/u>" } };
 
 describe("sendEmail through the Cloudflare binding", () => {
-  afterEach(() => { setMailTransport(undefined); vi.restoreAllMocks(); });
+  afterEach(() => { setMailTransport(undefined); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
   it("passes custom headers along", async () => {
     const send = vi.fn(async (_m: Record<string, unknown>) => ({}));
@@ -45,5 +45,39 @@ describe("sendEmail through the Cloudflare binding", () => {
     configureEmail({ EMAIL: { send }, EMAIL_FROM: "alerts@example.com", WEB_ORIGIN: "https://x" } as never);
     await expect(sendEmail(msg)).rejects.toThrow("rejected");
     expect(send).toHaveBeenCalledTimes(2);
+  });
+});
+
+
+describe("sendEmail through Brevo", () => {
+  afterEach(() => { setMailTransport(undefined); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+
+  it("sends transactional messages through the Brevo HTTPS API", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ messageId: "brevo-message-id" }), { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+    configureEmail({ BREVO_API_KEY: "test-brevo-key", EMAIL_FROM: "alerts@example.com", WEB_ORIGIN: "https://x" } as never);
+
+    await sendEmail({ ...msg, fromName: "MTCX Status" });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.brevo.com/v3/smtp/email");
+    expect(init.method).toBe("POST");
+    expect(new Headers(init.headers).get("api-key")).toBe("test-brevo-key");
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      sender: { email: "alerts@example.com", name: "MTCX Status" },
+      to: [{ email: "a@example.com" }],
+      subject: "s",
+      htmlContent: "<p>x</p>",
+      textContent: "x",
+      headers: msg.headers,
+    });
+  });
+
+  it("surfaces Brevo API failures without logging a false success", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("sender not verified", { status: 400 })));
+    configureEmail({ BREVO_API_KEY: "test-brevo-key", EMAIL_FROM: "alerts@example.com", WEB_ORIGIN: "https://x" } as never);
+
+    await expect(sendEmail(msg)).rejects.toThrow("Brevo email request failed (400)");
   });
 });

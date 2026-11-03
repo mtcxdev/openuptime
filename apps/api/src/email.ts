@@ -3,10 +3,10 @@ import { tr, type Lang } from "./mail-i18n";
 
 type EmailBinding = NonNullable<Bindings["EMAIL"]>;
 
-let cfg: { binding?: EmailBinding; from?: string; appUrl: string } = { appUrl: "" };
+let cfg: { binding?: EmailBinding; brevoApiKey?: string; from?: string; appUrl: string } = { appUrl: "" };
 
 /** Whether outgoing mail is wired up here; without it messages only reach the server log. */
-export const emailEnabled = () => !!cfg.from && !!(transport || cfg.binding);
+export const emailEnabled = () => !!cfg.from && !!(transport || cfg.brevoApiKey || cfg.binding);
 
 /** Public origin of the web app, for links in emails. */
 export const appUrl = () => cfg.appUrl;
@@ -18,7 +18,7 @@ export const setMailTransport = (t: Transport | undefined) => { transport = t; }
 
 /** Env values are constant per deployment, so a module-level config is safe in a Worker isolate. */
 export function configureEmail(env: Bindings) {
-  cfg = { binding: env.EMAIL, from: env.EMAIL_FROM, appUrl: env.WEB_ORIGIN };
+  cfg = { binding: env.EMAIL, brevoApiKey: env.BREVO_API_KEY, from: env.EMAIL_FROM, appUrl: env.WEB_ORIGIN };
 }
 
 /**
@@ -30,8 +30,31 @@ export async function sendEmail(msg: { to: string; subject: string; html: string
     await transport({ from: cfg.from, fromName: msg.fromName ?? "OpenUptime", to: msg.to, subject: msg.subject, html: msg.html, text: msg.text, headers: msg.headers });
     return;
   }
+  if (cfg.brevoApiKey && cfg.from) {
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "api-key": cfg.brevoApiKey,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { email: cfg.from, name: msg.fromName ?? "OpenUptime" },
+        to: [{ email: msg.to }],
+        subject: msg.subject,
+        htmlContent: msg.html,
+        textContent: msg.text,
+        ...(msg.headers ? { headers: msg.headers } : {}),
+      }),
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`Brevo email request failed (${response.status}): ${detail.slice(0, 500)}`);
+    }
+    return;
+  }
   if (!cfg.binding || !cfg.from) {
-    console.log(`[email → ${msg.to}] ${msg.subject}\n${msg.text}`);
+    console.log(`[email â ${msg.to}] ${msg.subject}\n${msg.text}`);
     return;
   }
   // the display name is what inboxes show instead of the bare "alerts" local part
@@ -107,7 +130,7 @@ export function actionEmail(o: MailOpts) {
     : "";
   const timeline = o.timeline?.length
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 8px">${o.timeline
-        .map((e) => `<tr><td style="width:18px;vertical-align:top;padding-top:6px"><span style="display:block;width:10px;height:10px;border-radius:50%;background:${TONE[e.tone][0]}"></span></td><td style="padding:0 0 18px"><div style="font-size:14px;color:${INK}"><b style="font-weight:600">${escape(e.label)}</b> <span style="color:${FAINT}">· ${escape(e.time)}</span></div><div style="font-size:14.5px;line-height:1.55;color:${MUTED};margin-top:2px">${escape(e.body)}</div></td></tr>`)
+        .map((e) => `<tr><td style="width:18px;vertical-align:top;padding-top:6px"><span style="display:block;width:10px;height:10px;border-radius:50%;background:${TONE[e.tone][0]}"></span></td><td style="padding:0 0 18px"><div style="font-size:14px;color:${INK}"><b style="font-weight:600">${escape(e.label)}</b> <span style="color:${FAINT}">Â· ${escape(e.time)}</span></div><div style="font-size:14.5px;line-height:1.55;color:${MUTED};margin-top:2px">${escape(e.body)}</div></td></tr>`)
         .join("")}</table>`
     : "";
   const foot = [o.footer && escape(o.footer), o.footerUrl && `<a href="${escape(o.footerUrl.url)}" style="color:${MUTED}">${escape(o.footerUrl.text)}</a>`].filter(Boolean).join(" ");
