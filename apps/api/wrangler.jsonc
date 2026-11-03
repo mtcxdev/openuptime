@@ -7,7 +7,6 @@
   "triggers": { "crons": ["* * * * *"] },
   "routes": [{ "pattern": "status.mtcx.store/api/*", "zone_name": "mtcx.store" }],
   "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "1a4c025f1cba4c06a84dfd652e7b9fb6" }],
-  "send_email": [{ "name": "EMAIL", "remote": true }],
   "vars": {
     "EMAIL_FROM": "alerts@mtcx.store",
     "INVITE_TTL_DAYS": "7",
