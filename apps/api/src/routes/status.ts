@@ -155,8 +155,31 @@ const HISTORY_PAGE = 15;
 // A page edit or an incident update shows up within this long (the data centre's copy is not cleared by an edit). Only found pages are kept.
 // Tests read a page right after changing it, so they run without the cache.
 const PUBLIC_TTL_MS = typeof process !== "undefined" && process.env?.VITEST ? 0 : 30_000;
-const boardCache = sharedCache<unknown>("status-board", PUBLIC_TTL_MS);
-const historyCache = sharedCache<unknown>("status-history", PUBLIC_TTL_MS);
+const FEED_TTL_MS = typeof process !== "undefined" && process.env?.VITEST ? 0 : 60_000;
+type CachedBoard = {
+  mcpEnabled: boolean;
+  updatedAt: string;
+  page: {
+    slug: string;
+    title: string;
+    theme: string;
+    showLatency: boolean;
+    externalUrl: string | null;
+    hideBranding: boolean;
+    uptimeOkPct: number;
+    uptimeWarnPct: number;
+  };
+  overall: Overall;
+  bucket: "hour" | "day";
+  components: { id: string; name: string; group: string | null; status: string; uptime90d: number | null; days: { day: string; uptime: number }[] }[];
+  incidents: ReturnType<typeof toPublic>[];
+};
+const boardCache = sharedCache<CachedBoard>("status-board", PUBLIC_TTL_MS);
+const historyCache = sharedCache<{ mcpEnabled: boolean; items: ReturnType<typeof toPublic>[]; next: Date | string | null }>("status-history", PUBLIC_TTL_MS);
+const maintCache = sharedCache<{ mcpEnabled: boolean; slug: string; items: { id: string; name: string; startsAt: Date | string; endsAt: Date | string; state: "scheduled" | "active" | "completed" }[] }>("status-maint", PUBLIC_TTL_MS);
+const rssCache = sharedCache<string>("status-rss", FEED_TTL_MS);
+const icsCache = sharedCache<string>("status-ics", FEED_TTL_MS);
+const llmsCache = sharedCache<string>("status-llms", FEED_TTL_MS);
 
 /**
  * Drops this instance's copies of the public board and history, so a change made through the API (an incident update, a
@@ -166,7 +189,46 @@ const historyCache = sharedCache<unknown>("status-history", PUBLIC_TTL_MS);
 export function purgePublicStatus() {
   boardCache.clear();
   historyCache.clear();
+  maintCache.clear();
+  rssCache.clear();
+  icsCache.clear();
+  llmsCache.clear();
 }
+
+async function loadBoard(c: Context<AppEnv>, slug: string) {
+  return boardCache.cached(
+    slug,
+    async () => {
+      const repo = c.get("repo");
+      const page = await repo.statusPageBySlug(slug);
+      if (!page) return undefined;
+      const board = await repo.statusBoard(page);
+      return {
+        mcpEnabled: !!page.mcpEnabled,
+        updatedAt: new Date().toISOString(),
+        page: {
+          slug: page.slug,
+          title: page.title,
+          theme: page.theme,
+          showLatency: page.showLatency,
+          externalUrl: page.externalUrl,
+          hideBranding: await brandingHidden(c, page),
+          uptimeOkPct: page.uptimeOkPct,
+          uptimeWarnPct: page.uptimeWarnPct,
+        },
+        overall: overallOf(board.components.map((x) => x.status)),
+        bucket: board.bucket,
+        components: board.components,
+        incidents: board.incidents.map(toPublic),
+      };
+    },
+    waitUntilOf(c),
+    { bypass: c.get("statusResponsePrivate") },
+  );
+}
+
+const mcpForbidden = (c: Context<AppEnv>, mcpEnabled: boolean) =>
+  c.req.query("via") === "mcp" && !mcpEnabled ? c.json({ error: "The owner of this status page turned off MCP access" }, 403) : null;
 
 type Overall = "operational" | "degraded" | "outage" | "unknown";
 const LABELS: Record<Overall, { en: string; zh: string }> = {
@@ -185,20 +247,22 @@ const langOf = (c: { req: { query(k: string): string | undefined; header(k: stri
   return /^zh/i.test(q) ? "zh" : "en";
 };
 
-/** The public MCP tools add `via=mcp`; a page whose owner turned that off refuses them (the page itself stays public). */
-async function mcpDenied(c: Context<AppEnv>, slug: string) {
-  if (c.req.query("via") !== "mcp") return null;
-  const page = await c.get("repo").statusPageBySlug(slug);
-  return page && !page.mcpEnabled ? c.json({ error: "The owner of this status page turned off MCP access" }, 403) : null;
-}
-
 async function rssFeed(c: Context<AppEnv>) {
-  const repo = c.get("repo");
-  const page = await repo.statusPageBySlug(c.req.param("slug")!);
-  if (!page) return c.json({ error: "Not found" }, 404);
-  const [incidents, maintenance] = await Promise.all([repo.pageIncidents(page, { limit: FEED_LIMIT }), repo.pageMaintenance(page, { limit: FEED_LIMIT })]);
-  const origin = appUrl() || new URL(c.req.url).origin;
-  const xml = buildRss({ title: page.title, link: `${origin}/status/${page.slug}`, incidents: incidents.map(toPublic), maintenance });
+  const slug = c.req.param("slug")!;
+  const xml = await rssCache.cached(
+    slug,
+    async () => {
+      const repo = c.get("repo");
+      const page = await repo.statusPageBySlug(slug);
+      if (!page) return undefined;
+      const [incidents, maintenance] = await Promise.all([repo.pageIncidents(page, { limit: FEED_LIMIT }), repo.pageMaintenance(page, { limit: FEED_LIMIT })]);
+      const origin = appUrl() || new URL(c.req.url).origin;
+      return buildRss({ title: page.title, link: `${origin}/status/${page.slug}`, incidents: incidents.map(toPublic), maintenance });
+    },
+    waitUntilOf(c),
+    { bypass: c.get("statusResponsePrivate") },
+  );
+  if (!xml) return c.json({ error: "Not found" }, 404);
   return c.body(xml, 200, { "content-type": "application/rss+xml; charset=utf-8", "cache-control": "public, max-age=60" });
 }
 
@@ -230,23 +294,19 @@ export const publicStatus = new Hono<AppEnv>()
   .use("/:slug/*", statusAccess)
   // one-line state for embeds; small and cacheable
   .get("/:slug/summary", async (c) => {
-    const repo = c.get("repo");
-    const page = await repo.statusPageBySlug(c.req.param("slug"));
-    if (!page) return c.json({ error: "Not found" }, 404, { "cache-control": "public, max-age=60" });
-    const board = await repo.statusBoard(page);
-    const overall = overallOf(board.components.map((x) => x.status));
+    const board = await loadBoard(c, c.req.param("slug"));
+    if (!board) return c.json({ error: "Not found" }, 404, { "cache-control": "public, max-age=60" });
     return c.json(
-      { slug: page.slug, title: page.title, overall, label: LABELS[overall][langOf(c)], url: `${appUrl()}/status/${page.slug}`, updatedAt: new Date().toISOString() },
+      { slug: board.page.slug, title: board.page.title, overall: board.overall, label: LABELS[board.overall][langOf(c)], url: `${appUrl()}/status/${board.page.slug}`, updatedAt: board.updatedAt },
       200,
       { "cache-control": "public, max-age=30" },
     );
   })
   // shields-style SVG for READMEs and <img> tags
   .get("/:slug/badge.svg", async (c) => {
-    const repo = c.get("repo");
     const lang = langOf(c);
-    const page = await repo.statusPageBySlug(c.req.param("slug"));
-    const overall: Overall | null = page ? overallOf((await repo.statusBoard(page)).components.map((x) => x.status)) : null;
+    const board = await loadBoard(c, c.req.param("slug"));
+    const overall: Overall | null = board ? board.overall : null;
     const left = lang === "zh" ? "状态" : "status";
     const right = overall ? LABELS[overall][lang] : lang === "zh" ? "未知" : "unknown";
     const color = overall ? COLORS[overall] : "#9ca3af";
@@ -261,9 +321,7 @@ export const publicStatus = new Hono<AppEnv>()
     const before = c.req.query("before");
     const cursor = before && !Number.isNaN(Date.parse(before)) ? new Date(before) : undefined;
     const slug = c.req.param("slug");
-    const refused = await mcpDenied(c, slug);
-    if (refused) return refused;
-    const body = await historyCache.cached(
+    const cached = await historyCache.cached(
       `${slug}|${cursor?.toISOString() ?? ""}`,
       async () => {
         const repo = c.get("repo");
@@ -271,63 +329,93 @@ export const publicStatus = new Hono<AppEnv>()
         if (!page) return undefined;
         const rows = await repo.pageIncidents(page, { limit: HISTORY_PAGE + 1, before: cursor });
         const items = rows.slice(0, HISTORY_PAGE).map(toPublic);
-        return { items, next: rows.length > HISTORY_PAGE ? items[items.length - 1].startedAt : null };
+        return { mcpEnabled: !!page.mcpEnabled, items, next: rows.length > HISTORY_PAGE ? items[items.length - 1].startedAt : null };
       },
       waitUntilOf(c),
       { bypass: c.get("statusResponsePrivate") },
     );
-    return body ? c.json(body) : c.json({ error: "Not found" }, 404);
+    if (!cached) return c.json({ error: "Not found" }, 404);
+    const refused = mcpForbidden(c, cached.mcpEnabled);
+    if (refused) return refused;
+    return c.json({ items: cached.items, next: cached.next });
   })
   // incidents and maintenance together, newest first; /rss stays as the original address of the same feed
   .get("/:slug/rss.xml", (c) => rssFeed(c))
   .get("/:slug/rss", (c) => rssFeed(c))
   // scheduled maintenance as a calendar subscription
   .get("/:slug/maintenance.ics", async (c) => {
-    const repo = c.get("repo");
-    const page = await repo.statusPageBySlug(c.req.param("slug"));
-    if (!page) return c.json({ error: "Not found" }, 404);
-    const windows = await repo.pageMaintenance(page, { since: new Date(Date.now() - 30 * 864e5), limit: ICS_LIMIT });
-    const origin = appUrl() || new URL(c.req.url).origin;
-    const body = buildIcs({ title: page.title, link: `${origin}/status/${page.slug}`, host: new URL(origin).host, windows });
+    const slug = c.req.param("slug");
+    const body = await icsCache.cached(
+      slug,
+      async () => {
+        const repo = c.get("repo");
+        const page = await repo.statusPageBySlug(slug);
+        if (!page) return undefined;
+        const windows = await repo.pageMaintenance(page, { since: new Date(Date.now() - 30 * 864e5), limit: ICS_LIMIT });
+        const origin = appUrl() || new URL(c.req.url).origin;
+        return buildIcs({ title: page.title, link: `${origin}/status/${page.slug}`, host: new URL(origin).host, windows });
+      },
+      waitUntilOf(c),
+      { bypass: c.get("statusResponsePrivate") },
+    );
+    if (!body) return c.json({ error: "Not found" }, 404);
     return c.body(body, 200, { "content-type": "text/calendar; charset=utf-8", "cache-control": "public, max-age=300" });
   })
   // short, factual page summary for language models and other crawlers
   .get("/:slug/llms.txt", async (c) => {
-    const repo = c.get("repo");
-    const page = await repo.statusPageBySlug(c.req.param("slug"));
-    if (!page) return c.json({ error: "Not found" }, 404);
-    const [board, windows] = await Promise.all([repo.statusBoard(page), repo.pageMaintenance(page, { since: new Date(), limit: 10 })]);
-    const origin = appUrl() || new URL(c.req.url).origin;
-    const body = buildLlmsTxt({
-      title: page.title,
-      link: `${origin}/status/${page.slug}`,
-      api: `${origin}/api/public/status/${page.slug}`,
-      overall: LABELS[overallOf(board.components.map((x) => x.status))].en,
-      components: board.components,
-      incidents: board.incidents,
-      maintenance: windows,
-      mcp: page.mcpEnabled ? `${origin}/api/mcp/public` : null,
-    });
+    const slug = c.req.param("slug");
+    const body = await llmsCache.cached(
+      slug,
+      async () => {
+        const repo = c.get("repo");
+        const page = await repo.statusPageBySlug(slug);
+        if (!page) return undefined;
+        const [board, windows] = await Promise.all([repo.statusBoard(page), repo.pageMaintenance(page, { since: new Date(), limit: 10 })]);
+        const origin = appUrl() || new URL(c.req.url).origin;
+        return buildLlmsTxt({
+          title: page.title,
+          link: `${origin}/status/${page.slug}`,
+          api: `${origin}/api/public/status/${page.slug}`,
+          overall: LABELS[overallOf(board.components.map((x) => x.status))].en,
+          components: board.components,
+          incidents: board.incidents,
+          maintenance: windows,
+          mcp: page.mcpEnabled ? `${origin}/api/mcp/public` : null,
+        });
+      },
+      waitUntilOf(c),
+      { bypass: c.get("statusResponsePrivate") },
+    );
+    if (!body) return c.json({ error: "Not found" }, 404);
     return c.body(body, 200, { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=300" });
   })
   // upcoming and recent maintenance as JSON (the public MCP tools read this)
   .get("/:slug/maintenance", async (c) => {
     const slug = c.req.param("slug");
-    const refused = await mcpDenied(c, slug);
+    const cached = await maintCache.cached(
+      slug,
+      async () => {
+        const repo = c.get("repo");
+        const page = await repo.statusPageBySlug(slug);
+        if (!page) return undefined;
+        const now = Date.now();
+        const rows = await repo.pageMaintenance(page, { since: new Date(now - 7 * 864e5), limit: 50 });
+        const items = rows.map((w) => ({
+          id: w.id,
+          name: w.name,
+          startsAt: w.startsAt,
+          endsAt: w.endsAt,
+          state: (w.startsAt.getTime() > now ? "scheduled" : w.endsAt.getTime() >= now ? "active" : "completed") as "scheduled" | "active" | "completed",
+        }));
+        return { mcpEnabled: !!page.mcpEnabled, slug: page.slug, items };
+      },
+      waitUntilOf(c),
+      { bypass: c.get("statusResponsePrivate") },
+    );
+    if (!cached) return c.json({ error: "Not found" }, 404);
+    const refused = mcpForbidden(c, cached.mcpEnabled);
     if (refused) return refused;
-    const repo = c.get("repo");
-    const page = await repo.statusPageBySlug(slug);
-    if (!page) return c.json({ error: "Not found" }, 404);
-    const now = Date.now();
-    const rows = await repo.pageMaintenance(page, { since: new Date(now - 7 * 864e5), limit: 50 });
-    const items = rows.map((w) => ({
-      id: w.id,
-      name: w.name,
-      startsAt: w.startsAt,
-      endsAt: w.endsAt,
-      state: w.startsAt.getTime() > now ? "scheduled" : w.endsAt.getTime() >= now ? "active" : "completed",
-    }));
-    return c.json({ slug: page.slug, items }, 200, { "cache-control": "public, max-age=60" });
+    return c.json({ slug: cached.slug, items: cached.items }, 200, { "cache-control": "public, max-age=60" });
   })
   .post("/:slug/subscribe", zValidator("json", emailSchema.extend({ monitorIds: z.array(z.string().uuid()).max(200).optional() })), async (c) => {
     const repo = c.get("repo");
@@ -392,25 +480,10 @@ export const publicStatus = new Hono<AppEnv>()
   })
   .get("/:slug", async (c) => {
     const slug = c.req.param("slug");
-    const refused = await mcpDenied(c, slug);
+    const body = await loadBoard(c, slug);
+    if (!body) return c.json({ error: "Not found" }, 404);
+    const refused = mcpForbidden(c, body.mcpEnabled);
     if (refused) return refused;
-    const body = await boardCache.cached(
-      slug,
-      async () => {
-        const repo = c.get("repo");
-        const page = await repo.statusPageBySlug(slug);
-        if (!page) return undefined;
-        const board = await repo.statusBoard(page);
-        return {
-          page: { slug: page.slug, title: page.title, theme: page.theme, showLatency: page.showLatency, externalUrl: page.externalUrl, hideBranding: await brandingHidden(c, page), uptimeOkPct: page.uptimeOkPct, uptimeWarnPct: page.uptimeWarnPct },
-          overall: overallOf(board.components.map((x) => x.status)),
-          bucket: board.bucket,
-          components: board.components,
-          incidents: board.incidents.map(toPublic),
-        };
-      },
-      waitUntilOf(c),
-      { bypass: c.get("statusResponsePrivate") },
-    );
-    return body ? c.json(body) : c.json({ error: "Not found" }, 404);
+    const { mcpEnabled: _mcp, updatedAt: _u, ...publicBody } = body;
+    return c.json(publicBody);
   });

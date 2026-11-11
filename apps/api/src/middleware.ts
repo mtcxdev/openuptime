@@ -75,7 +75,15 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
   const allProjects = asked === ALL_PROJECTS;
   const wanted = (allProjects ? undefined : asked) ?? scope?.[0];
   // Sessions and grants can outlive membership; authorize the active workspace against current membership.
-  if (orgId && !(await repo.isMember(userId, orgId))) throw new HTTPException(403, { message: "Not a member of this workspace" });
+  if (orgId) {
+    if (typeof repo.memberRole === "function") {
+      const role = await repo.memberRole(userId, orgId);
+      if (!role) throw new HTTPException(403, { message: "Not a member of this workspace" });
+      c.set("memberRole", role);
+    } else if (!(await repo.isMember(userId, orgId))) {
+      throw new HTTPException(403, { message: "Not a member of this workspace" });
+    }
+  }
   if (!orgId) {
     orgId = (await repo.anyWorkspaceOf(userId)) ?? undefined;
     if (!orgId) throw new HTTPException(403, { message: "No workspace" });
@@ -98,7 +106,9 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
 
 /** True for workspace owners and admins (by session, API key or agent alike). */
 export async function isManager(c: Context<AppEnv>): Promise<boolean> {
-  const role = await c.get("repo").memberRole(c.get("userId"), c.get("orgId"));
+  const cached = c.get("memberRole");
+  const role = cached !== undefined ? cached : await c.get("repo").memberRole(c.get("userId"), c.get("orgId"));
+  c.set("memberRole", role);
   return role === "owner" || role === "admin";
 }
 

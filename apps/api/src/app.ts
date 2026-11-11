@@ -145,9 +145,15 @@ export function createApp(openDatabase: OpenDatabase, options: { edition?: Editi
     if (!m) return c.json({ error: "Unknown token" }, 404);
     // a paused monitor stays paused: the ping is acknowledged but changes nothing
     if (m.status === "paused") return c.json({ ok: true, paused: true });
-    const accepted = await repo.recordHeartbeatObservation(m);
-    if (!accepted) return c.json({ ok: true, paused: true });
-    await repo.recordCheck({ monitorId: m.id, ok: true });
+    let accepted: Awaited<ReturnType<typeof repo.recordHeartbeatObservation>>;
+    if (repo.recordHeartbeatOutcome) {
+      accepted = await repo.recordHeartbeatOutcome(m);
+      if (!accepted) return c.json({ ok: true, paused: true });
+    } else {
+      accepted = await repo.recordHeartbeatObservation(m);
+      if (!accepted) return c.json({ ok: true, paused: true });
+      await repo.recordCheck({ monitorId: m.id, ok: true });
+    }
     const wasDown = accepted.status === "down";
     const ready = (accepted.consecutiveSuccesses ?? 0) >= (accepted.recoveryThreshold ?? 1);
     // the status stays "down" until the incident is resolved, so a failed resolve is retried by the next ping

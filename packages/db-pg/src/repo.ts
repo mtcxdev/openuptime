@@ -18,10 +18,10 @@ import {
   type McpHistory,
   type McpObservation,
 } from "@openuptime/repo";
-import { and, asc, count, desc, eq, gt, gte, inArray, isNotNull, isNull, lt, lte, ne, notInArray, or, sql, type SQL, type SQLWrapper } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, gte, inArray, isNotNull, isNull, lt, lte, notInArray, or, sql, type SQL, type SQLWrapper } from "drizzle-orm";
 import type { DbExecutor } from "./client";
 import * as schema from "./schema";
-import { coverageTime, recordHeartbeatObservation, recordObservation, timeCoverage } from "./coverage";
+import { coverageTime, recordCheckOutcome, recordHeartbeatObservation, recordHeartbeatOutcome, recordObservation, timeCoverage } from "./coverage";
 import { publicMonitorStatus } from "./public-monitor-status";
 import { mcpSchemaHash, completeMcpDiscovery, comparableMcpConfig, mcpTaskId } from "./mcp-data";
 
@@ -594,16 +594,26 @@ export function createRepo(db: DbExecutor): Repo {
     },
 
     async recordRecoveryProgress(m, ok) {
-      // Write only when something changes: a failure clears a non-zero streak, a success counts while the outage lasts.
-      // A healthy monitor's checks (nearly all of them) then cost a read instead of a row update.
-      const [row] = await db.update(schema.monitor).set({
-        consecutiveSuccesses: ok ? sql`least(${schema.monitor.consecutiveSuccesses} + 1, ${schema.monitor.recoveryThreshold})` : 0,
-      }).where(and(eq(schema.monitor.id, m.id), eq(schema.monitor.paused, false), ok ? eq(schema.monitor.status, "down") : ne(schema.monitor.consecutiveSuccesses, 0)))
-        .returning({ successes: schema.monitor.consecutiveSuccesses, threshold: schema.monitor.recoveryThreshold });
-      if (row) return { successes: row.successes, ready: row.successes >= row.threshold };
-      const [cur] = await db.select({ paused: schema.monitor.paused, successes: schema.monitor.consecutiveSuccesses, threshold: schema.monitor.recoveryThreshold })
-        .from(schema.monitor).where(eq(schema.monitor.id, m.id));
-      return !cur || cur.paused ? null : { successes: cur.successes, ready: cur.successes >= cur.threshold };
+      // Lock and conditionally advance in one round trip: healthy checks read once instead of a failed update + select.
+      const [row] = await rows<{ paused: boolean; successes: number; threshold: number }>(
+        db.execute(sql`
+          with target as (
+            select id, paused, status, consecutive_successes, recovery_threshold
+            from monitor where id = ${m.id} for update
+          ),
+          updated as (
+            update monitor m
+            set consecutive_successes = ${ok ? sql`least(t.consecutive_successes + 1, t.recovery_threshold)` : sql`0`}
+            from target t
+            where m.id = t.id and not t.paused and (${ok ? sql`t.status = 'down'` : sql`t.consecutive_successes <> 0`})
+            returning m.consecutive_successes, m.recovery_threshold
+          )
+          select t.paused,
+            coalesce(u.consecutive_successes, t.consecutive_successes)::int as successes,
+            coalesce(u.recovery_threshold, t.recovery_threshold)::int as threshold
+          from target t left join updated u on true`),
+      );
+      return !row || row.paused ? null : { successes: Number(row.successes), ready: Number(row.successes) >= Number(row.threshold) };
     },
 
     async completeRecovery(m, status, consecutiveSlow) {
@@ -694,6 +704,8 @@ export function createRepo(db: DbExecutor): Repo {
     },
     recordObservation: (m, result, options) => recordObservation(db, m, result, options),
     recordHeartbeatObservation: (m) => recordHeartbeatObservation(db, m),
+    recordHeartbeatOutcome: (m) => recordHeartbeatOutcome(db, m),
+    recordCheckOutcome: (m, result, results, options) => recordCheckOutcome(db, m, result, results, options),
     timeCoverage: (orgId, monitorId, scope, days, now) => timeCoverage(db, orgId, monitorId, scope, days, now),
     async recordCheck(r) {
       // the raw result and its hourly rollup in one round trip
@@ -1398,13 +1410,17 @@ export function createRepo(db: DbExecutor): Repo {
     },
     async pendingHousekeeping() {
       // Supersets of what the claim queries below select, each answered from an index, so an idle tick costs one round trip.
-      const [row] = await db.execute<{ mcp_alerts: boolean; deliveries: boolean; follow_ups: boolean }>(sql`select
+      const [row] = await db.execute<{ mcp_alerts: boolean; deliveries: boolean; follow_ups: boolean; maintenance_reminders: boolean }>(sql`select
         exists (select 1 from mcp_alert_outbox where status in ('pending', 'leased')) as mcp_alerts,
         exists (select 1 from alert_delivery where status in ('pending', 'sending'))
           or exists (select 1 from alert_delivery where status is null and ok = false and next_attempt_at <= now()) as deliveries,
         exists (select 1 from incident where resolved_at is null and acknowledged_at is null
-          and (next_reminder_at <= now() or next_escalation_at <= now())) as follow_ups`);
-      return { mcpAlerts: row.mcp_alerts, deliveries: row.deliveries, followUps: row.follow_ups };
+          and (next_reminder_at <= now() or next_escalation_at <= now())) as follow_ups,
+        exists (select 1 from maintenance_window w join status_page p on p.organization_id = w.organization_id
+          where p.maintenance_reminder_hours > 0 and w.starts_at >= now()
+            and w.starts_at <= now() + p.maintenance_reminder_hours * interval '1 hour'
+            and not exists (select 1 from maintenance_reminder r where r.maintenance_id = w.id and r.status_page_id = p.id)) as maintenance_reminders`);
+      return { mcpAlerts: row.mcp_alerts, deliveries: row.deliveries, followUps: row.follow_ups, maintenanceReminders: row.maintenance_reminders };
     },
     async endStuckWork(o) {
       // Only sessions of this role, database and application name; pg_terminate_backend runs on the filtered rows alone.

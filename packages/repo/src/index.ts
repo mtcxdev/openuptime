@@ -572,6 +572,37 @@ export interface Repo {
   recordHeartbeatObservation(m: Monitor): Promise<Monitor | null>;
   /** Persist a bounded observation independently of mutable alert/incident state. False rejects a stale or duplicate run. */
   recordObservation(m: Monitor, result: { ok: boolean; latencyMs?: number | null; degraded?: boolean }, options?: { generation?: number; heartbeatPing?: boolean }): Promise<boolean>;
+  /**
+   * Atomically accept a ping using current configuration, renew its deadline, and store its check result + hourly
+   * rollup in one round trip. Null if paused or deleted.
+   */
+  recordHeartbeatOutcome?(m: Monitor): Promise<Monitor | null>;
+  /**
+   * Atomically persist a non-MCP check observation, raw result(s), hourly rollup, maintenance flag, recovery counter
+   * and (when no incident transition is pending) monitor status in one round trip. Returns `{ accepted: false }` when
+   * fenced/stale; optional so mock repos continue using the decomposed methods.
+   */
+  recordCheckOutcome?(
+    m: Monitor,
+    result: { ok: boolean; statusCode?: number | null; latencyMs?: number | null; error?: string | null; degraded?: boolean; domainExpiry?: DomainExpiry | null },
+    results: RegionResult[],
+    options?: { generation?: number },
+  ): Promise<{
+    accepted: boolean;
+    suppressedMaintenance?: boolean;
+    inMaintenance?: boolean;
+    parentDown?: boolean;
+    wantsSlowIncident?: boolean;
+    goingDown?: boolean;
+    recovering?: boolean;
+    opensOutage?: boolean;
+    slowTrips?: boolean;
+    slowClears?: boolean;
+    checkLateOpen?: boolean;
+    pending?: boolean;
+    nextStatus?: MonitorStatus;
+    finalSlow?: number;
+  }>;
   /** All durations are milliseconds; unknown is never implicitly counted as healthy. */
   timeCoverage(orgId: string, monitorId: string, scope: Scope, days: 7 | 30, now?: Date): Promise<TimeCoverage | null>;
   /** Store a raw result and fold it into its hourly rollup. */
@@ -694,7 +725,7 @@ export interface Repo {
    * Which kinds of scheduler housekeeping could have work, in one cheap read. Each flag may be true when there turns out to
    * be nothing to do, never false when there is. Optional: without it every housekeeping step runs on every tick.
    */
-  pendingHousekeeping?(): Promise<{ mcpAlerts: boolean; deliveries: boolean; followUps: boolean }>;
+  pendingHousekeeping?(): Promise<{ mcpAlerts: boolean; deliveries: boolean; followUps: boolean; maintenanceReminders?: boolean }>;
   /**
    * End this app's database sessions whose transaction has been open longer than `transactionSec` (a worker that died
    * mid-transaction keeps its row locks, and claims skip locked monitors), and count unpaused monitors overdue by more than

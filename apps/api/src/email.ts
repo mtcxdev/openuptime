@@ -54,7 +54,7 @@ export async function sendEmail(msg: { to: string; subject: string; html: string
     return;
   }
   if (!cfg.binding || !cfg.from) {
-    console.log(`[email â ${msg.to}] ${msg.subject}\n${msg.text}`);
+    console.log(`[email → ${msg.to}] ${msg.subject}\n${msg.text}`);
     return;
   }
   // the display name is what inboxes show instead of the bare "alerts" local part
@@ -130,7 +130,7 @@ export function actionEmail(o: MailOpts) {
     : "";
   const timeline = o.timeline?.length
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 8px">${o.timeline
-        .map((e) => `<tr><td style="width:18px;vertical-align:top;padding-top:6px"><span style="display:block;width:10px;height:10px;border-radius:50%;background:${TONE[e.tone][0]}"></span></td><td style="padding:0 0 18px"><div style="font-size:14px;color:${INK}"><b style="font-weight:600">${escape(e.label)}</b> <span style="color:${FAINT}">Â· ${escape(e.time)}</span></div><div style="font-size:14.5px;line-height:1.55;color:${MUTED};margin-top:2px">${escape(e.body)}</div></td></tr>`)
+        .map((e) => `<tr><td style="width:18px;vertical-align:top;padding-top:6px"><span style="display:block;width:10px;height:10px;border-radius:50%;background:${TONE[e.tone][0]}"></span></td><td style="padding:0 0 18px"><div style="font-size:14px;color:${INK}"><b style="font-weight:600">${escape(e.label)}</b> <span style="color:${FAINT}">· ${escape(e.time)}</span></div><div style="font-size:14.5px;line-height:1.55;color:${MUTED};margin-top:2px">${escape(e.body)}</div></td></tr>`)
         .join("")}</table>`
     : "";
   const foot = [o.footer && escape(o.footer), o.footerUrl && `<a href="${escape(o.footerUrl.url)}" style="color:${MUTED}">${escape(o.footerUrl.text)}</a>`].filter(Boolean).join(" ");

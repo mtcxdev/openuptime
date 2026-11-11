@@ -27,6 +27,16 @@ export interface ChangelogEntry {
 /** Community entries, newest first within a day. Cloud-only entries are added by changelog-cloud.ts. */
 export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
   {
+    id: "hyperdrive-query-budget", date: "2026-11-11", edition: "community",
+    title: { en: "Dramatically fewer database queries per check", zh: "大幅减少每次检测的数据库查询次数" },
+    summary: { en: "Scheduled checks, heartbeats, public status endpoints, and cron housekeeping now do far fewer database round trips, keeping small Cloudflare Workers Free plans well within Hyperdrive's daily quota.", zh: "定时检测、心跳上报、公开状态页接口以及计划任务现在大幅减少数据库往返次数，让 Cloudflare Workers 免费版远低于 Hyperdrive 的每日配额上限。" },
+    points: [
+      { en: "Each non-MCP check and heartbeat ping now commits its observation, raw result, hourly rollup, maintenance check, and monitor state in a single database call instead of up to 12 separate statements (with an automatic 4–5 query fallback before migrations run).", zh: "每次非 MCP 检测和心跳上报现在通过单次数据库调用即可原子提交观测记录、检测结果、小时聚合、维护窗口检查和监控状态（未执行迁移前会自动回退到 4–5 条合并查询），替代原有的最多 12 次独立往返。" },
+      { en: "Public status endpoints (/summary, /badge.svg, /maintenance, /rss.xml, /maintenance.ics, /llms.txt) now share the short-lived isolate and edge cache.", zh: "公开状态页接口（/summary、/badge.svg、/maintenance、/rss.xml、/maintenance.ics、/llms.txt）现共享内存与边缘短期缓存。" },
+      { en: "Idle maintenance-reminder, monthly-report, and retention sweeps skip redundant queries, and role/dashboard polling reuse already loaded data less aggressively.", zh: "空闲时的维护提醒、月报与清理任务跳过多余查询，成员权限校验及后台页面轮询也减少了重复请求。" },
+    ],
+  },
+  {
     id: "monitor-page-spacing", date: "2026-11-02", edition: "community",
     title: { en: "Spacing on the monitor page", zh: "监控详情页间距" },
     summary: { en: "The time coverage report and the MCP history no longer touch the cards below them.", zh: "时间覆盖报告和 MCP 历史卡片不再与下方卡片贴在一起。" },

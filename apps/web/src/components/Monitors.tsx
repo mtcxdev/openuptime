@@ -109,7 +109,7 @@ export default function Monitors() {
   useEffect(() => {
     if (!everything) Promise.all([api.channels(), api.statusPages()]).then(([c, p]) => setSetup({ channels: c.length > 0, pages: p.length > 0 })).catch(() => {});
     load();
-    return pollWhileVisible(load, 15000);
+    return pollWhileVisible(load, 60000);
   }, []);
   // ⌘K / Ctrl+K focuses the search box
   useEffect(() => {

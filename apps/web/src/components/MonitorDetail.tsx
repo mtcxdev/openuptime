@@ -34,7 +34,7 @@ export default function MonitorDetail({ id }: { id: string }) {
   useEffect(() => {
     load().then(() => api.channels().then(setChannels)).catch(() => {});
     api.regions().then((r) => setNames(Object.fromEntries(r.regions.map((x) => [x.id, x.name])))).catch(() => {});
-    return pollWhileVisible(load, 10000);
+    return pollWhileVisible(load, 30000);
   }, [id]);
   if (!m) return <p className="muted">{t("Loading…")}</p>;
 

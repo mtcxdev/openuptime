@@ -16,6 +16,7 @@ services:
       WEB_ORIGIN: ${PUBLIC_URL:-http://localhost:8080}
       # optional: outgoing email (invitations, password reset, alerts). Without it emails are written to the log.
       EMAIL_FROM: ${EMAIL_FROM:-}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       SMTP_URL: ${SMTP_URL:-}
       SMTP_HOST: ${SMTP_HOST:-}

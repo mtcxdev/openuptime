@@ -103,10 +103,12 @@ async function housekeeping(repo: Repo, queue: CheckQueue | undefined, total = 0
     await step("alert reminders", () => sendReminders(repo, entitlements, queue ? 10 : 3));
     await step("alert escalations", () => sendEscalations(repo, entitlements, queue ? 10 : 3));
   }
-  // cheap housekeeping once an hour
-  if (new Date().getMinutes() === 0) await repo.purgeExpired();
+  const now = new Date();
+  const min = now.getUTCMinutes();
+  // retention deletes are cheap on a coarse cadence (4x/day instead of 24x/day)
+  if (min === 0 && now.getUTCHours() % 6 === 0) await repo.purgeExpired();
   // reminders and reports are claimed in the database before they are sent, so a coarse cadence is enough
-  if (new Date().getMinutes() % 5 === 0) {
+  if (min % 5 === 0) {
     // A worker killed mid-transaction can leave its connection open and its rows locked; claims skip locked monitors
     // without a word, so end such sessions and say when monitors fall behind.
     await step("stuck work", async () => {
@@ -114,8 +116,12 @@ async function housekeeping(repo: Repo, queue: CheckQueue | undefined, total = 0
       if (stuck?.ended) console.error(`ended ${stuck.ended} database sessions stuck in a transaction`);
       if (stuck?.overdue) console.error(`${stuck.overdue} monitors are more than ${OVERDUE_SEC / 60} minutes overdue`);
     });
-    await sendMaintenanceReminders(repo, entitlements).catch((e) => console.error("maintenance reminders failed", e));
-    await sendMonthlyReports(repo, new Date(), entitlements).catch((e) => console.error("monthly reports failed", e));
+    if (!pending || pending.maintenanceReminders !== false) {
+      await sendMaintenanceReminders(repo, entitlements).catch((e) => console.error("maintenance reminders failed", e));
+    }
+    if (min === 0) {
+      await sendMonthlyReports(repo, now, entitlements).catch((e) => console.error("monthly reports failed", e));
+    }
   }
   return total;
 }
@@ -209,6 +215,30 @@ async function applyMeasured(repo: Repo, m: Monitor, measured: Measured, entitle
   const { out, results, note: regionNote } = measured;
   // a region that failed without the monitor going down leaves a trace, so a skipped change can be explained
   if (regionNote && out.ok) console.info(`monitor ${m.id}: no change, ${regionNote}`);
+  if (m.type !== "mcp" && repo.recordCheckOutcome) {
+    const committed = await repo.recordCheckOutcome(
+      m,
+      { ok: out.ok, statusCode: out.statusCode, latencyMs: out.latencyMs, error: out.error, degraded: out.degraded, domainExpiry: out.domainExpiry },
+      results,
+      { generation: scheduled ? m.runGeneration : undefined },
+    );
+    if (!committed.accepted) return;
+    if (out.domainExpiry) m = { ...m, domainExpiry: out.domainExpiry };
+    if (committed.suppressedMaintenance) {
+      console.info(`monitor ${m.id}: ${SUPPRESSED_MAINTENANCE}`);
+      return;
+    }
+    if (committed.wantsSlowIncident && committed.inMaintenance) console.info(`monitor ${m.id}: ${SUPPRESSED_MAINTENANCE} (latency incident)`);
+    if ((committed.goingDown || committed.wantsSlowIncident) && committed.parentDown) console.info(`monitor ${m.id}: ${SUPPRESSED_DEPENDENCY}`);
+    const lateOpen = !!committed.checkLateOpen && !(await repo.hasOpenIncident(m.id, false)) && !(await repo.outageHandledByPerson(m.id));
+    if (!committed.pending && !lateOpen) return;
+    if (committed.opensOutage || lateOpen) await openIncident(repo, m, out.error ?? "Check failed", evaluation(m, regionNote, lateOpen), entitlements, notify);
+    if (committed.recovering && !(await completeRecovery(repo, m, committed.nextStatus === "degraded" ? "degraded" : "up", committed.finalSlow ?? 0, entitlements, notify))) return;
+    if (committed.slowTrips) await openSlowIncident(repo, m, out.latencyMs!, entitlements, notify);
+    if (committed.slowClears) await resolveIncident(repo, m, true, entitlements, notify);
+    if (committed.pending && !committed.recovering) await repo.setMonitorState(m.id, { status: committed.nextStatus, consecutiveSlow: committed.finalSlow });
+    return;
+  }
   if (!(await repo.recordObservation(m, out, { generation: scheduled ? m.runGeneration : undefined }))) return;
   if (out.domainExpiry) {
     if (!(await repo.acceptDomainExpiry(m, out.domainExpiry))) return;

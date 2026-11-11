@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 /** Repository root, for the guard tests that compare files across packages. */
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
-export const read = (path: string) => readFileSync(join(ROOT, path), "utf8");
+export const read = (path: string) => readFileSync(join(ROOT, path), "utf8").replace(/\r\n/g, "\n");
 
 /** Every file under `dir` (relative to the root) whose name passes `keep`, skipping build output and dependencies. */
 export function walk(dir: string, keep: (file: string) => boolean = () => true): string[] {

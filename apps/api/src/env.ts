@@ -93,6 +93,7 @@ export type Variables = {
   entitlements: Entitlements;
   userId: string;
   orgId: string;
+  memberRole?: string | null;
   /** Active project inside the workspace (cookie `ou_project` / header `x-project-id`, else the oldest). */
   projectId: string;
   /**
