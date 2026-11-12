@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useBusy } from "../lib/use-busy";
 import { authClient } from "../lib/auth-client";
 import { api } from "../lib/api";
+import { ModalDialog } from "./ModalDialog";
 
 // The session's "active organization" can be unset (older sessions, cookie cache); the workspace the API resolves is authoritative.
 const orgId = () => api.me().then((m) => m.organization.id);
@@ -82,7 +83,7 @@ export default function Team() {
   return (
     <>
       <div className="ph">
-        <div><h1>{t("Team")}</h1><p className="muted">{t("People who can see and change this workspace.")}</p></div>
+        <div><h1>{t("Team")}</h1></div>
         <button className="btn primary" onClick={() => { setMsg(""); setSent(null); setOpen(true); }}>{t("+ Invite teammate")}</button>
       </div>
       {sent && (
@@ -159,22 +160,29 @@ export default function Team() {
       </div>
 
       {open && (
-        <div className="modal" onClick={() => setOpen(false)}>
-          <form className="card" onClick={(e) => e.stopPropagation()} onSubmit={invite}>
-            <h2 style={{ fontSize: 30 }}>{t("Invite a teammate")}</h2>
-            <label className="fld">{t("Email")}<input className="in" type="email" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} placeholder="teammate@example.com" /></label>
-            <div className="fld">{t("Role")}
-              <div className="seg">
-                {(["member", "admin"] as const).map((r) => <i key={r} className={role === r ? "on" : ""} onClick={() => setRole(r)}>{t(r)}</i>)}
+        <ModalDialog onClose={() => setOpen(false)} ariaLabel={t("Invite a teammate")}>
+          <form className="card mform" onSubmit={invite}>
+            <div className="mhead">
+              <h2>{t("Invite a teammate")}</h2>
+              <button type="button" className="icon-btn mclose" aria-label={t("Close")} onClick={() => setOpen(false)}>×</button>
+            </div>
+            <div className="mbody">
+              <label className="fld">{t("Email")}<input className="in" type="email" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} placeholder="teammate@example.com" /></label>
+              <div className="fld">{t("Role")}
+                <div className="seg">
+                  {(["member", "admin"] as const).map((r) => <i key={r} className={role === r ? "on" : ""} onClick={() => setRole(r)}>{t(r)}</i>)}
+                </div>
               </div>
             </div>
-            {msg && <p className="err">{msg}</p>}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" className="btn" onClick={() => setOpen(false)}>{t("Cancel")}</button>
-              <button className="btn primary" disabled={busy}>{busy ? t("Creating…") : t("Create invitation")}</button>
+            <div className="mfoot">
+              {msg && <p className="err">{msg}</p>}
+              <div className="mbtns">
+                <button type="button" className="btn" onClick={() => setOpen(false)}>{t("Cancel")}</button>
+                <button className="btn primary" disabled={busy}>{busy ? t("Creating…") : t("Create invitation")}</button>
+              </div>
             </div>
           </form>
-        </div>
+        </ModalDialog>
       )}
     </>
   );

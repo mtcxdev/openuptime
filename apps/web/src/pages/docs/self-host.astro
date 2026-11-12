@@ -1,9 +1,9 @@
 ---
 import Doc from "../../layouts/Doc.astro";
 ---
-<Doc titleZh="自托管：Cloudflare Workers 或 Docker" descriptionZh="在 Cloudflare Workers 加 Postgres 上运行 OpenUptime，或用一个 Docker 容器部署。" description="Run OpenUptime on Cloudflare Workers with Postgres, or in one Docker container." title="Self-host" updated="2026-11-02" toc>
+<Doc titleZh="自托管：Cloudflare Workers 或 Docker" descriptionZh="在 Cloudflare Workers 加 Postgres 上运行 MTCX Tools，或用一个 Docker 容器部署。" description="Run MTCX Tools on Cloudflare Workers with Postgres, or in one Docker container." title="Self-host" updated="2026-11-02" toc>
   <div lang="en">
-    <h1>Self-host OpenUptime</h1>
+    <h1>Self-host MTCX Tools</h1>
     <p class="lede">Run your own copy on Cloudflare Workers or in Docker. Both use the same code and a Postgres database you control.</p>
     <p>Pick one:</p>
     <ul>
@@ -133,7 +133,7 @@ cd ../web &amp;&amp; pnpm build &amp;&amp; pnpm exec wrangler deploy</code></pre
     <p>No data migration is involved. Monitors, history and incidents are untouched.</p>
 
     <h2 id="regions">Multi-region checks</h2>
-    <p>By default a monitor is checked from where OpenUptime runs. To check from several places, deploy the small probe in <code>apps/probe</code> to a few regions and tell the API where they are. A monitor uses them only when you pick regions for it; everything else keeps running from this deployment, so nothing changes until you opt in. How a verdict is reached and what the app shows are covered in <a href="/docs/regions">Multi-region checks</a>.</p>
+    <p>By default a monitor is checked from where MTCX Tools runs. To check from several places, deploy the small probe in <code>apps/probe</code> to a few regions and tell the API where they are. A monitor uses them only when you pick regions for it; everything else keeps running from this deployment, so nothing changes until you opt in. How a verdict is reached and what the app shows are covered in <a href="/docs/regions">Multi-region checks</a>.</p>
     <ol>
       <li><strong>Deploy the probe</strong> in each place you want checks to come from. It is a small service that runs one check on request, and there are two ways to run it. Pick whichever fits, or mix them: every probe is just a URL to the API.</li>
     </ol>
@@ -191,7 +191,7 @@ PROBE_REGIONS={"us-east":"https://probe.example.app/api/probe/us-east","eu-centr
       <li><strong>"Sign-ups are closed"</strong>: <code>DISABLE_SIGNUP=true</code>; invite the person first, or connect GitHub from an existing account.</li>
     </ul>
     <h2 id="apns">iOS push notifications (APNs)</h2>
-    <p>The OpenUptime iOS app can receive alerts as push notifications. The server sends them through Apple's APNs, so it needs an APNs credential. Push is off until all four variables below are set; <code>GET /api/config</code> then reports <code>push.apns: true</code> and the <em>Mobile app (push)</em> channel type appears under Alerting.</p>
+    <p>The MTCX Tools iOS app can receive alerts as push notifications. The server sends them through Apple's APNs, so it needs an APNs credential. Push is off until all four variables below are set; <code>GET /api/config</code> then reports <code>push.apns: true</code> and the <em>Mobile app (push)</em> channel type appears under Alerting.</p>
     <h3>What you need</h3>
     <ul>
       <li>An Apple Developer account and an App ID for the app, with the Push Notifications capability.</li>
@@ -213,7 +213,7 @@ PROBE_REGIONS={"us-east":"https://probe.example.app/api/probe/us-east","eu-centr
     </ul>
     <h3>How it works</h3>
     <p>People register their phone from the app; a <code>push</code> channel then alerts every member of the workspace who has a registered device, each in their own language. Registering a phone as an owner or admin creates a <em>Mobile app</em> channel for you if the workspace has none. Phones that Apple reports as no longer valid are forgotten automatically.</p>
-    <p><strong>Important:</strong> an APNs key is tied to your Apple team and the app's bundle id, and a phone's token only works with the app that produced it. The official OpenUptime app can therefore receive push only from the hosted service. On a self-hosted server push works for an app you build and sign yourself with your own bundle id and key. A relay that would let the official app receive push from self-hosted servers is not implemented.</p>
+    <p><strong>Important:</strong> an APNs key is tied to your Apple team and the app's bundle id, and a phone's token only works with the app that produced it. The official MTCX Tools app can therefore receive push only from the hosted service. On a self-hosted server push works for an app you build and sign yourself with your own bundle id and key. A relay that would let the official app receive push from self-hosted servers is not implemented.</p>
     <h2 id="after">After install</h2>
     <ul>
       <li>Create your first monitor, then a <a href="/docs/embed">status page</a> and, optionally, embed its state on your site.</li>
@@ -222,7 +222,7 @@ PROBE_REGIONS={"us-east":"https://probe.example.app/api/probe/us-east","eu-centr
   </div>
 
   <div lang="zh-CN">
-    <h1>自托管 OpenUptime</h1>
+    <h1>自托管 MTCX Tools</h1>
     <p class="lede">在 Cloudflare Workers 或 Docker 上运行你自己的实例。两种方式使用同一套代码和一个由你掌控的 Postgres 数据库。</p>
     <p>二选一：</p>
     <ul>
@@ -352,7 +352,7 @@ cd ../web &amp;&amp; pnpm build &amp;&amp; pnpm exec wrangler deploy</code></pre
     <p>不涉及数据迁移，监控项、历史记录和事件都不受影响。</p>
 
     <h2 id="regions-zh">多区域检测</h2>
-    <p>默认情况下，监控项从 OpenUptime 自身所在位置发起检测。想从多个地点检测，可把 <code>apps/probe</code> 中的小型探针部署到几个区域，再把它们的地址告诉 API。只有你为某个监控项指定了区域，才会使用探针；其他监控项仍从本部署发起，因此不主动开启就不会有任何变化。结论如何得出、应用里能看到什么，见<a href="/docs/regions">多区域检测</a>。</p>
+    <p>默认情况下，监控项从 MTCX Tools 自身所在位置发起检测。想从多个地点检测，可把 <code>apps/probe</code> 中的小型探针部署到几个区域，再把它们的地址告诉 API。只有你为某个监控项指定了区域，才会使用探针；其他监控项仍从本部署发起，因此不主动开启就不会有任何变化。结论如何得出、应用里能看到什么，见<a href="/docs/regions">多区域检测</a>。</p>
     <ol>
       <li><strong>部署探针</strong>到你想让检测发起的每个地点。探针是个小服务，按请求执行一次检测，有两种运行方式，可任选或混用：对 API 来说每个探针只是一个 URL。</li>
     </ol>
@@ -410,7 +410,7 @@ PROBE_REGIONS={"us-east":"https://probe.example.app/api/probe/us-east","eu-centr
       <li><strong>“Sign-ups are closed”</strong>：已设置 <code>DISABLE_SIGNUP=true</code>；请先邀请对方，或在已有账号中关联 GitHub。</li>
     </ul>
     <h2 id="apns-zh">iOS 推送通知（APNs）</h2>
-    <p>OpenUptime iOS 应用可以通过推送接收告警。服务器经由 Apple 的 APNs 发送，因此需要 APNs 凭证。以下四个变量全部设置后才会启用推送；此时 <code>GET /api/config</code> 会返回 <code>push.apns: true</code>，告警页里也会出现 <em>手机 App 推送</em> 渠道类型。</p>
+    <p>MTCX Tools iOS 应用可以通过推送接收告警。服务器经由 Apple 的 APNs 发送，因此需要 APNs 凭证。以下四个变量全部设置后才会启用推送；此时 <code>GET /api/config</code> 会返回 <code>push.apns: true</code>，告警页里也会出现 <em>手机 App 推送</em> 渠道类型。</p>
     <h3>你需要准备</h3>
     <ul>
       <li>一个 Apple Developer 账号，以及为应用创建的 App ID（开启 Push Notifications 能力）。</li>
@@ -432,7 +432,7 @@ PROBE_REGIONS={"us-east":"https://probe.example.app/api/probe/us-east","eu-centr
     </ul>
     <h3>工作方式</h3>
     <p>成员在应用里注册自己的手机；<code>push</code> 渠道会通知工作区中所有已注册设备的成员，并按各自的语言显示。所有者或管理员注册手机时，如果工作区还没有该渠道，会自动创建名为 <em>Mobile app</em> 的渠道。Apple 反馈已失效的手机会被自动清除。</p>
-    <p><strong>重要：</strong>APNs 密钥绑定你的 Apple 团队和应用的 bundle id，手机令牌也只对产生它的应用有效。因此官方 OpenUptime 应用只能接收托管服务发出的推送。自托管服务器上，推送适用于你自己用自己的 bundle id 和密钥构建并签名的应用。让官方应用接收自托管服务器推送的中继服务尚未实现。</p>
+    <p><strong>重要：</strong>APNs 密钥绑定你的 Apple 团队和应用的 bundle id，手机令牌也只对产生它的应用有效。因此官方 MTCX Tools 应用只能接收托管服务发出的推送。自托管服务器上，推送适用于你自己用自己的 bundle id 和密钥构建并签名的应用。让官方应用接收自托管服务器推送的中继服务尚未实现。</p>
     <h2 id="after-zh">安装之后</h2>
     <ul>
       <li>创建第一个监控项，再创建<a href="/docs/embed">状态页</a>，需要的话把状态嵌入到你的网站。</li>

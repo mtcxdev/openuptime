@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api, type TimeCoverage as Report } from "../lib/api";
 import { t } from "../lib/i18n";
+import Select from "./Select";
 
 export default function TimeCoverage({ id }: { id: string }) {
   const [days, setDays] = useState<7 | 30>(7);
@@ -23,9 +24,15 @@ export default function TimeCoverage({ id }: { id: string }) {
     <h3>{t("Time coverage")}</h3>
     <p className="muted">{t("Time inferred from fresh checks, not exact outage duration. Missing history stays unknown. Maintenance is included.")}</p>
     <div style={{ display: "flex", gap: 8, margin: "12px 0" }}>
-      <select className="in" aria-label={t("Coverage window")} value={days} disabled={busy} onChange={(e) => { setDays(Number(e.target.value) as 7 | 30); setReport(null); }}>
-        <option value={7}>{t("7 days")}</option><option value={30}>{t("30 days")}</option>
-      </select>
+      <Select
+        className="in"
+        compact
+        label={t("Coverage window")}
+        value={days}
+        disabled={busy}
+        onChange={(v) => { setDays(v); setReport(null); }}
+        options={[{ value: 7, label: t("7 days") }, { value: 30, label: t("30 days") }]}
+      />
       <button className="btn" disabled={busy} onClick={load}>{busy ? t("Loading…") : t("Load report")}</button>
     </div>
     {error && <p className="err" role="alert">{error}</p>}

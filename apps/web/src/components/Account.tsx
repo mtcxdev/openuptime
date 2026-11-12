@@ -108,7 +108,7 @@ function Security({ me, reload, hasPassword }: { me: Me; reload: () => void; has
       <div className="card sect">
         <h3>{t("Your data")}</h3>
         <p className="muted" style={{ marginBottom: 12 }}>{t("Download a JSON copy of your profile, sessions and the workspaces you manage.")}</p>
-        <div><a className="btn" href="/api/me/export" download="openuptime-account-export.json">{t("Download my data")}</a></div>
+        <div><a className="btn" href="/api/me/export" download="mtcx-account-export.json">{t("Download my data")}</a></div>
       </div>
       <div className="card sect">
         <h3 style={{ color: "var(--down)" }}>{t("Delete account")}</h3>

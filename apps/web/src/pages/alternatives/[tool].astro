@@ -12,19 +12,19 @@ const langs = [
 ] as const;
 const ui = {
   en: {
-    glance: "At a glance", topic: "Topic", gaps: "What OpenUptime does not do", gapsIntro: "Check this list before you switch. It is short, and it is complete as of this page.",
-    known: `What ${tool.name} is known for that OpenUptime does not do`, who: "Who each is best for", pick: `Pick ${tool.name} if`, pickUs: "Pick OpenUptime if",
-    migrate: `Moving from ${tool.name}`, faq: "Questions", ctaT: "Try OpenUptime", ctaP: "Start on the hosted service, or run it yourself. The source is on GitHub under the MIT license.",
+    glance: "At a glance", topic: "Topic", gaps: "What MTCX Tools does not do", gapsIntro: "Check this list before you switch. It is short, and it is complete as of this page.",
+    known: `What ${tool.name} is known for that MTCX Tools does not do`, who: "Who each is best for", pick: `Pick ${tool.name} if`, pickUs: "Pick MTCX Tools if",
+    migrate: `Moving from ${tool.name}`, faq: "Questions", ctaT: "Try MTCX Tools", ctaP: "Monitor endpoints, APIs, and cron jobs in one dashboard, or self-host it yourself.",
     start: "Start monitoring", self: "Self-host guide", more: "More", all: "All comparisons", mcp: "MCP server", api: "API reference", regions: "Multi-region checks", embed: "Embed status",
-    h1: `OpenUptime as a ${tool.name} alternative`, aboutT: `About ${tool.name}`,
+    h1: `MTCX Tools as a ${tool.name} alternative`, aboutT: `About ${tool.name}`,
     note: "Information about other products is general and may be out of date. Check their own sites for current features and pricing.",
   },
   zh: {
-    glance: "对比一览", topic: "项目", gaps: "OpenUptime 没有的功能", gapsIntro: "切换之前请先看这份清单。它不长，截至本页是完整的。",
-    known: `${tool.name} 擅长而 OpenUptime 没有的功能`, who: "各自适合谁", pick: `适合选择 ${tool.name} 的情况`, pickUs: "适合选择 OpenUptime 的情况",
-    migrate: `从 ${tool.name} 迁移`, faq: "常见问题", ctaT: "试用 OpenUptime", ctaP: "可以直接使用托管服务，也可以自己运行。源码在 GitHub，采用 MIT 许可证。",
+    glance: "对比一览", topic: "项目", gaps: "MTCX Tools 没有的功能", gapsIntro: "切换之前请先看这份清单。它不长，截至本页是完整的。",
+    known: `${tool.name} 擅长而 MTCX Tools 没有的功能`, who: "各自适合谁", pick: `适合选择 ${tool.name} 的情况`, pickUs: "适合选择 MTCX Tools 的情况",
+    migrate: `从 ${tool.name} 迁移`, faq: "常见问题", ctaT: "试用 MTCX Tools", ctaP: "在一个面板中监控接口、服务与定时任务，也可自行部署。",
     start: "开始监控", self: "自托管指南", more: "更多", all: "全部对比", mcp: "MCP 服务", api: "API 参考", regions: "多区域检测", embed: "嵌入状态",
-    h1: `${tool.name} 的替代方案：OpenUptime`, aboutT: `关于 ${tool.name}`,
+    h1: `${tool.name} 的替代方案：MTCX Tools`, aboutT: `关于 ${tool.name}`,
     note: "关于其他产品的信息只是概括，可能已经过时。当前功能和价格请以其官网为准。",
   },
 } as const;
@@ -37,7 +37,7 @@ const ui = {
       <p>{tool.about[k]} {ui[k].note}</p>
       <h2 id={`compare${k === "zh" ? "-zh" : ""}`}>{ui[k].glance}</h2>
       <table class="cmp">
-        <thead><tr><th>{ui[k].topic}</th><th>OpenUptime</th><th>{tool.name}</th></tr></thead>
+        <thead><tr><th>{ui[k].topic}</th><th>MTCX Tools</th><th>{tool.name}</th></tr></thead>
         <tbody>
           {tool.rows.map((r) => (<tr><td>{r.topic[k]}</td><td>{r.ou[k]}</td><td>{r.them[k]}</td></tr>))}
         </tbody>

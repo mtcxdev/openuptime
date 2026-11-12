@@ -2,6 +2,7 @@ import { SkeletonRows } from "./Skeleton";
 import MonitorImport from "./MonitorImport";
 import { monitorState } from "../lib/domain-expiry";
 import Select from "./Select";
+import { ModalDialog } from "./ModalDialog";
 import { McpFields, initialMcpForm, mcpConfigForSave, mcpDiscoveryConfig, McpConnectionFields, McpToolCatalog, mcpConnectionKey } from "./McpFields";
 import { t } from "../lib/i18n";
 import { useEffect, useRef, useState } from "react";
@@ -15,7 +16,7 @@ const TYPE_LABEL: Record<Monitor["type"], string> = { http: "HTTP", tcp: "TCP", 
 
 export function Spark({ data, status }: { data: (number | null)[]; status: string }) {
   const pts = data.filter((v): v is number => v != null);
-  const color = status === "down" ? "var(--down)" : status === "degraded" ? "var(--warn)" : "var(--accent)";
+  const color = status === "down" ? "var(--down)" : status === "degraded" ? "var(--warn)" : "var(--ok)";
   // not enough for a line yet: a dashed baseline, with a dot for the one result there is
   if (pts.length < 2) return <svg className="sp" viewBox="0 0 140 30"><path d="M0 15h140" stroke="var(--line-2)" strokeWidth="1.5" strokeDasharray="3 4" fill="none" />{pts.length === 1 && <circle cx="132" cy="15" r="3.5" fill={color} />}</svg>;
   const lo = Math.min(...pts), hi = Math.max(...pts), span = Math.max(1, hi - lo);
@@ -156,14 +157,16 @@ export default function Monitors() {
       <div className="ph">
         <div>
           <h1>{t("Monitors")}{everything && <ScopeChip />}</h1>
-          <p className="muted">
-            {items === null ? t("Loading…") : down.length ? `${down.length} ${t(down.some((m) => m.type === "domain") ? "checks need attention" : "down right now")}` : all.length ? t("Everything is up.") : t("Nothing is being watched yet.")}
-          </p>
+          {items !== null && down.length > 0 && (
+            <p className="muted" style={{ color: "var(--down)" }}>
+              {down.length} {t(down.some((m) => m.type === "domain") ? "checks need attention" : "down right now")}
+            </p>
+          )}
         </div>
         {!everything && <div className="acts">
           <input id="mon-import" type="file" accept="application/json,.json" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) importFile(f); }} />
           <button className="btn" onClick={() => document.getElementById("mon-import")?.click()}>{t("Import")}</button>
-          {all.length > 0 && <a className="btn" href="/api/monitors/export" download="openuptime-monitors.json">{t("Export")}</a>}
+          {all.length > 0 && <a className="btn" href="/api/monitors/export" download="mtcx-monitors.json">{t("Export")}</a>}
           <button className="btn primary" onClick={() => setOpen(true)}>{t("+ New monitor")}</button>
         </div>}
       </div>
@@ -186,10 +189,10 @@ export default function Monitors() {
 
       {items && items.length > 0 && (
         <div className="kp">
-          <div className="card"><small>{t("Monitors up")}</small><b>{upN}<u>/ {all.length}</u></b><div className={`d ${down.length ? "bad" : ""}`}>{down.length ? `${down.length} ${t("down")}` : t("All operational")}</div></div>
-          <div className="card"><small>{t("Uptime 24h")}</small><b>{avgUp == null ? "—" : avgUp.toFixed(2)}<u>%</u></b><div className="d faint">{t("Average across monitors")}</div></div>
-          <div className="card"><small>{t("Avg latency")}</small><b>{avgLat ?? "—"}<u>ms</u></b><div className="d faint">{t("Last 24 hours")}</div></div>
-          <div className="card"><small>{t("Open incidents")}</small><b>{openInc.length}</b><div className={`d ${openInc.length ? "bad" : ""}`}>{openInc.length ? t("Needs attention") : t("None")}</div></div>
+          <div className="card"><small>{t("Monitors up")}</small><b>{upN}<u>/ {all.length}</u></b>{down.length > 0 && <div className="d bad">{down.length} {t("down")}</div>}</div>
+          <div className="card"><small>{t("Uptime 24h")}</small><b>{avgUp == null ? "—" : avgUp.toFixed(2)}<u>%</u></b></div>
+          <div className="card"><small>{t("Avg latency")}</small><b>{avgLat ?? "—"}<u>ms</u></b></div>
+          <div className="card"><small>{t("Open incidents")}</small><b>{openInc.length}</b>{openInc.length > 0 && <div className="d bad">{t("Needs attention")}</div>}</div>
         </div>
       )}
 
@@ -201,34 +204,12 @@ export default function Monitors() {
       ) : items.length === 0 && everything ? (
         <div className="empty"><h3 style={{ fontSize: 28 }}>{t("No monitors yet")}</h3><p className="muted">{t("Choose a project to add the first one.")}</p></div>
       ) : items.length === 0 ? (
-        <div className="onb">
-          <div className="onb-h">
-            <div>
-              <h2 className="onb-t">{t("Welcome to OpenUptime.")}</h2>
-              <p className="muted">{t("Four steps to a monitor that wakes you up before your customers notice.")}</p>
-            </div>
-            <span className="chip">{1 + (setup.channels ? 1 : 0) + (setup.pages ? 1 : 0)} / 4</span>
-          </div>
-          <div className="onb-steps">
-            {[
-              { done: true, title: t("Create your workspace"), sub: t("Your workspace is ready."), cta: null as null | [string, string | (() => void)] },
-              { done: false, title: t("Add your first monitor"), sub: t("HTTP, TCP, DNS, heartbeat — about 30 seconds."), cta: [t("Add monitor"), () => setOpen(true)] as [string, () => void] },
-              { done: setup.channels, title: t("Connect an alert channel"), sub: t("Slack, email, Telegram or PagerDuty."), cta: [t("Connect"), "/app/alerting"] as [string, string] },
-              { done: setup.pages, title: t("Publish a status page"), sub: t("Give customers one place to check."), cta: [t("Create page"), "/app/status-pages"] as [string, string] },
-            ].map((st, i) => (
-              <div className={`onb-step ${st.done ? "done" : ""}`} key={i}>
-                <span className="onb-n">{st.done ? "✓" : i + 1}</span>
-                <div className="onb-b"><b>{st.title}</b><small>{st.sub}</small></div>
-                {!st.done && st.cta && (typeof st.cta[1] === "string"
-                  ? <a className="btn sm" href={st.cta[1]}>{st.cta[0]}</a>
-                  : <button className="btn sm primary" onClick={st.cta[1] as () => void}>{st.cta[0]}</button>)}
-              </div>
-            ))}
-          </div>
-          <div className="empty">
-            <h3 style={{ fontSize: 26 }}>{t("No monitors yet")}</h3>
-            <p className="muted" style={{ margin: "6px 0 18px" }}>{t("Add a URL and we’ll check it every minute.")}</p>
+        <div className="empty">
+          <h3 style={{ fontSize: 28 }}>{t("No monitors yet")}</h3>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
             <button className="btn primary" onClick={() => setOpen(true)}>{t("+ Add your first monitor")}</button>
+            {!setup.channels && <a className="btn" href="/app/alerting">{t("+ Add channel")}</a>}
+            {!setup.pages && <a className="btn" href="/app/status-pages">{t("+ New status page")}</a>}
           </div>
         </div>
       ) : (
@@ -398,7 +379,7 @@ export function MonitorForm({ monitor, onClose, onSaved }: { monitor?: Monitor; 
     }
   }
   return (
-    <div className="modal">
+    <ModalDialog onClose={onClose} size="lg" ariaLabel={monitor ? t("Edit monitor") : t("New monitor")}>
       <form className="card mform" onSubmit={submit}>
         <div className="mhead">
           <h2 style={{ fontSize: 30 }}>{monitor ? t("Edit monitor") : t("New monitor")}</h2>
@@ -611,6 +592,6 @@ export function MonitorForm({ monitor, onClose, onSaved }: { monitor?: Monitor; 
           </div>
         </div>
       </form>
-    </div>
+    </ModalDialog>
   );
 }

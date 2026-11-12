@@ -132,8 +132,8 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <AuthShell side={mode}>
-      <h1 className="serif">{t(login ? "Welcome back." : "Start watching.")}</h1>
-      <p className="muted auth-sub">{t(login ? "Sign in to see what’s up — and what isn’t." : "Free and open source. Your first monitor in two minutes.")}</p>
+      <h1 className="serif">{t(login ? "Welcome back." : "Create workspace")}</h1>
+      <p className="muted auth-sub">{t(login ? "Sign in to your account." : "Start monitoring endpoints and status pages.")}</p>
 
       {github && (
         <>

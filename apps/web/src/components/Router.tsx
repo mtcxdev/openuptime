@@ -31,7 +31,7 @@ function syncShell(pathname: string) {
   const label = hit ? t(NAV_LABEL[hit.route.key]) : t("Not found");
   const crumb = document.querySelector(".crumb b");
   if (crumb) crumb.textContent = label;
-  document.title = `${t(hit?.route.title ?? "Not found")} · OpenUptime`;
+  document.title = `${t(hit?.route.title ?? "Not found")} · MTCX Tools`;
 }
 
 /** Same-origin /app links navigate in place; everything else (modifier clicks, new tabs, other pages) is left to the browser. */

@@ -4,6 +4,7 @@ import { useBusy } from "../lib/use-busy";
 import { ago, api, type Project } from "../lib/api";
 import { authClient } from "../lib/auth-client";
 import QRCode from "qrcode";
+import { ModalDialog } from "./ModalDialog";
 
 type Key = { id: string; name: string | null; start: string | null; createdAt: string; metadata?: { projectIds?: string[] } | null };
 
@@ -27,7 +28,7 @@ function AgentGrants() {
   return (
     <>
       <div className="ph" style={{ marginTop: 28 }}>
-        <div><h2 style={{ fontSize: 22 }}>{t("Authorized agents")}</h2><p className="muted">{t("Apps you let manage OpenUptime on your behalf (MCP / OAuth).")}</p></div>
+        <div><h2 style={{ fontSize: 22 }}>{t("Authorized agents")}</h2><p className="muted">{t("Apps authorized via MCP or OAuth.")}</p></div>
       </div>
       <div className="card tbl">
         {grants.map((g) => (
@@ -117,7 +118,7 @@ export default function ApiKeys() {
               <img src={qr} alt={t("QR code to connect the mobile app")} />
               <div>
                 <b>{t("Connect the mobile app")}</b>
-                <p className="muted">{t("Scan with the OpenUptime app to connect it to this server. The code contains the key, so do not share it.")}</p>
+                <p className="muted">{t("Scan with the MTCX mobile app to connect it to this server. The code contains the key, so do not share it.")}</p>
               </div>
             </div>
           )}
@@ -149,32 +150,39 @@ export default function ApiKeys() {
       </div>
 
       {open && (
-        <div className="modal" onClick={() => setOpen(false)}>
-          <form className="card" onClick={(e) => e.stopPropagation()} onSubmit={create}>
-            <h2 style={{ fontSize: 30 }}>{t("New API key")}</h2>
-            <label className="fld">{t("Name")}<input className="in" required autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("CI deploy hook")} /></label>
-            <div className="fld">{t("Project access")}
-              <div className="seg">
-                <i className={all ? "on" : ""} onClick={() => setAll(true)}>{t("All projects")}</i>
-                <i className={!all ? "on" : ""} onClick={() => setAll(false)}>{t("Selected projects")}</i>
-              </div>
-              {!all && (
-                <div style={{ display: "grid", gap: 2, marginTop: 6, padding: 6, border: "1px solid var(--line)", borderRadius: 12, maxHeight: 180, overflow: "auto" }}>
-                  {projects.map((p) => (
-                    <label key={p.id} style={{ display: "flex", gap: 10, alignItems: "center", padding: "6px 8px", fontSize: 14, fontWeight: 400, cursor: "pointer" }}>
-                      <input type="checkbox" checked={picked.includes(p.id)} onChange={(e) => setPicked((l) => (e.target.checked ? [...l, p.id] : l.filter((x) => x !== p.id)))} />{p.name}
-                    </label>
-                  ))}
-                </div>
-              )}
+        <ModalDialog onClose={() => setOpen(false)} ariaLabel={t("New API key")}>
+          <form className="card mform" onSubmit={create}>
+            <div className="mhead">
+              <h2>{t("New API key")}</h2>
+              <button type="button" className="icon-btn mclose" aria-label={t("Close")} onClick={() => setOpen(false)}>×</button>
             </div>
-            {err && <p className="err">{err}</p>}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" className="btn" onClick={() => setOpen(false)}>{t("Cancel")}</button>
-              <button className="btn primary" disabled={busy}>{busy ? t("Creating…") : t("Create key")}</button>
+            <div className="mbody">
+              <label className="fld">{t("Name")}<input className="in" required autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("CI deploy hook")} /></label>
+              <div className="fld">{t("Project access")}
+                <div className="seg">
+                  <i className={all ? "on" : ""} onClick={() => setAll(true)}>{t("All projects")}</i>
+                  <i className={!all ? "on" : ""} onClick={() => setAll(false)}>{t("Selected projects")}</i>
+                </div>
+                {!all && (
+                  <div style={{ display: "grid", gap: 2, marginTop: 6, padding: 6, border: "1px solid var(--line)", borderRadius: 12, maxHeight: 180, overflow: "auto" }}>
+                    {projects.map((p) => (
+                      <label key={p.id} style={{ display: "flex", gap: 10, alignItems: "center", padding: "6px 8px", fontSize: 14, fontWeight: 400, cursor: "pointer" }}>
+                        <input type="checkbox" checked={picked.includes(p.id)} onChange={(e) => setPicked((l) => (e.target.checked ? [...l, p.id] : l.filter((x) => x !== p.id)))} />{p.name}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mfoot">
+              {err && <p className="err">{err}</p>}
+              <div className="mbtns">
+                <button type="button" className="btn" onClick={() => setOpen(false)}>{t("Cancel")}</button>
+                <button className="btn primary" disabled={busy}>{busy ? t("Creating…") : t("Create key")}</button>
+              </div>
             </div>
           </form>
-        </div>
+        </ModalDialog>
       )}
     </>
   );

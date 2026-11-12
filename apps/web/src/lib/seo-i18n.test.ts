@@ -12,10 +12,10 @@ const head = (p: (typeof pages)[number]) =>
   [
     `<html lang="en"><head>`,
     `<meta name="description" content="${p.description.en.replace(/"/g, "&quot;")}"><meta property="og:description" content="${p.description.en.replace(/"/g, "&quot;")}">`,
-    `<meta property="og:title" content="${p.title.en} · OpenUptime">`,
+    `<meta property="og:title" content="${p.title.en} · MTCX Tools">`,
     `<script type="application/ld+json" id="seo-ld">${scriptJson(faqLd(p.faq, "en"))}</script>`,
     `<script type="application/json" id="seo-i18n">${scriptJson(zhVariant(p.title, p.description, p.faq))}</script>`,
-    `<title>${p.title.en} · OpenUptime</title></head><body>x</body></html>`,
+    `<title>${p.title.en} · MTCX Tools</title></head><body>x</body></html>`,
   ].join("\n");
 
 describe("Chinese metadata of the SEO pages", () => {
@@ -52,7 +52,7 @@ describe("Chinese metadata of the SEO pages", () => {
     }
   });
   it("leaves other pages untouched", () => {
-    const html = `<html lang="en"><head><title>Docs · OpenUptime</title><meta name="description" content="Docs"></head></html>`;
+    const html = `<html lang="en"><head><title>Docs · MTCX Tools</title><meta name="description" content="Docs"></head></html>`;
     expect(localizeSeoHtml(html)).toBe(html);
   });
 });
@@ -79,12 +79,12 @@ describe.skipIf(!builtPages.length)("localizeSeoHtml on built pages", () => {
 describe("localizeSeoHtml without FAQ data", () => {
   it("swaps title and description of a docs-style page and leaves its structured data alone", () => {
     const html = [
-      `<head><title>Pricing · OpenUptime</title><meta name="description" content="English"><meta property="og:title" content="Pricing · OpenUptime">`,
+      `<head><title>Pricing · MTCX Tools</title><meta name="description" content="English"><meta property="og:title" content="Pricing · MTCX Tools">`,
       `<script type="application/ld+json" id="seo-ld">{"a":1}</script>`,
-      `<script type="application/json" id="seo-i18n">${scriptJson({ title: "价格 · OpenUptime", description: "中文描述" })}</script></head>`,
+      `<script type="application/json" id="seo-i18n">${scriptJson({ title: "价格 · MTCX Tools", description: "中文描述" })}</script></head>`,
     ].join("");
     const out = localizeSeoHtml(html);
-    expect(out).toContain("<title>价格 · OpenUptime</title>");
+    expect(out).toContain("<title>价格 · MTCX Tools</title>");
     expect(out).toContain('content="中文描述"');
     expect(out).toContain('id="seo-ld">{"a":1}');
     expect(out).not.toContain("seo-i18n");

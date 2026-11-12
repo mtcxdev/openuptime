@@ -5,7 +5,7 @@ import type { Faq } from "./seo-pages";
  * Metadata of the comparison and use-case pages in both languages. The pages are built once, in English; SeoShell embeds
  * the Chinese variant in a JSON block, and the /zh-Hans route swaps it in (see localizeSeoHtml).
  */
-export const SITE_SUFFIX = " · OpenUptime";
+export const SITE_SUFFIX = " · MTCX Tools";
 
 export function faqLd(faq: Faq[], lang: keyof L) {
   return {

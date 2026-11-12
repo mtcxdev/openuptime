@@ -8,16 +8,18 @@ const hasCloud = CLOUD_ENTRIES.length > 0;
 ---
 <Doc
   title="Changelog"
-  description="What changed in OpenUptime, newest first, for the open-source Community edition and the hosted Cloud edition."
+  titleZh="更新日志"
+  description="What changed in MTCX Tools uptime monitoring, newest first."
+  descriptionZh="MTCX Tools 可用性监控的更新日志，按时间倒序。"
 >
   <div class="cl">
     <div lang="en">
       <h1>Changelog</h1>
-      <p class="lede">What changed in OpenUptime, newest first. Everything in the Community edition also ships in Cloud; Cloud adds the features that only make sense in a hosted service.</p>
+      <p class="lede">What changed in MTCX Tools, newest first.</p>
     </div>
     <div lang="zh-CN">
       <h1>更新日志</h1>
-      <p class="lede">OpenUptime 的变更记录，按时间倒序。社区版的所有改动同样会进入 Cloud 版；Cloud 版另有只适用于托管服务的功能。</p>
+      <p class="lede">MTCX Tools 的变更记录，按时间倒序。</p>
     </div>
 
     <div class="cl-eds">
@@ -130,7 +132,7 @@ const hasCloud = CLOUD_ENTRIES.length > 0;
 <style is:global>
   main.doc:has(> .cl) { max-width: 960px; }
   .cl-eds { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 8px 0 8px; }
-  .cl-ed { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px 18px; }
+  .cl-ed { border: 1px solid var(--line); border-radius: var(--mtcx-radius-card, 14px); background: var(--surface); padding: 16px 18px; box-shadow: var(--sh, none); }
   .cl-ed p { margin: 8px 0 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
   .cl-ed-h { display: flex; align-items: center; gap: 10px; }
   .cl-ed-h code { background: none; border: 0; padding: 0; color: var(--muted); }
@@ -138,8 +140,8 @@ const hasCloud = CLOUD_ENTRIES.length > 0;
   .cl-badge.community { color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line)); background: color-mix(in srgb, var(--accent) 10%, transparent); }
   .cl-badge.cloud { background: var(--ink); color: var(--bg); }
   .cl-badge.sm { height: 22px; padding: 0 8px; font-size: 11.5px; flex: none; }
-  .cl-bar { display: inline-flex; gap: 4px; padding: 4px; margin: 28px 0 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
-  .cl-bar button { height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: none; color: var(--muted); font: 500 14px var(--sans); cursor: pointer; }
+  .cl-bar { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; margin: 28px 0 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+  .cl-bar button { min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: none; color: var(--muted); font: 500 14px var(--sans); cursor: pointer; }
   .cl-bar button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, .08); }
   .cl-bar button:not(.on):hover { color: var(--ink); background: color-mix(in srgb, var(--surface) 60%, transparent); }
   .cl-link:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -148,7 +150,7 @@ const hasCloud = CLOUD_ENTRIES.length > 0;
   .cl-e[hidden] { display: none; }
   .cl-more { margin: 28px 0 0; text-align: center; }
   .cl-more[hidden] { display: none; }
-  .cl-more button { height: 40px; padding: 0 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: 500 14.5px var(--sans); cursor: pointer; }
+  .cl-more button { min-height: 40px; padding: 0 20px; border: 1px solid var(--line); border-radius: var(--mtcx-radius-sm, 10px); background: var(--surface); color: var(--ink); font: 500 14.5px var(--sans); cursor: pointer; }
   .cl-more button:hover { background: var(--surface-2); }
   .cl-d { flex: 0 0 110px; padding-top: 3px; }
   .cl-d time { font: 500 13.5px var(--mono); color: var(--ink); }
@@ -159,7 +161,7 @@ const hasCloud = CLOUD_ENTRIES.length > 0;
   .doc .cl-e h2 a:hover { text-decoration: underline; text-underline-offset: 3px; }
   .doc .cl-b p, .doc .cl-b ul { margin: 0; }
   .cl-sum { color: var(--muted); }
-  .cl-note { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); font-size: 14.5px; line-height: 1.55; }
+  .cl-note { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--mtcx-radius-md, 12px); background: var(--surface-2); font-size: 14.5px; line-height: 1.55; }
   .cl-link { font-weight: 500; font-size: 14.5px; }
   @media (max-width: 640px) { .cl-d { flex-basis: 100%; padding-top: 0; } }
 </style>

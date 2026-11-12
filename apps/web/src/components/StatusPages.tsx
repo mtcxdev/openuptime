@@ -2,6 +2,7 @@ import { adoptProject, backToAll, navigate } from "../lib/nav";
 import { t } from "../lib/i18n";
 import { useEffect, useState } from "react";
 import { api, type Monitor, type StatusPage, type Subscriber } from "../lib/api";
+import { ModalDialog } from "./ModalDialog";
 
 export default function StatusPages() {
   const [pages, setPages] = useState<StatusPage[] | null>(null);
@@ -11,20 +12,19 @@ export default function StatusPages() {
   return (
     <>
       <div className="ph">
-        <div><h1>{t("Status pages")}</h1><p className="muted">{t("Public pages your customers can check before they email you.")}</p></div>
+        <div><h1>{t("Status pages")}</h1></div>
         <button className="btn primary" onClick={() => setOpen(true)}>{t("+ New status page")}</button>
       </div>
       {pages === null && <p className="muted">{t("Loading…")}</p>}
       {pages?.length === 0 ? (
-        <div className="empty"><h3 style={{ fontSize: 28 }}>{t("No status pages")}</h3><p className="muted" style={{ margin: "6px 0 20px" }}>{t("Publish one in a minute.")}</p>
-          <button className="btn primary" onClick={() => setOpen(true)}>{t("+ Create a status page")}</button></div>
+        <div className="empty"><h3 style={{ fontSize: 28 }}>{t("No status pages")}</h3>
+          <button className="btn primary" style={{ marginTop: 14 }} onClick={() => setOpen(true)}>{t("+ Create a status page")}</button></div>
       ) : (
         <div className="sp-grid">
           {pages?.map((p) => (
             <div className="card sp-card" key={p.id}>
               <div className="sp-h">
                 <h3>{p.title}</h3>
-                <span className="chip">{t(p.theme === "auto" ? "Auto" : p.theme === "dark" ? "Dark" : "Light")}</span>
               </div>
               <a className="mono sp-url" href={`/status/${p.slug}`} target="_blank">/status/{p.slug} ↗</a>
               <p className="faint" style={{ fontSize: 13 }}>{p.monitorIds?.length ?? 0} {t("components")}</p>
@@ -56,17 +56,24 @@ function Create({ onClose }: { onClose: () => void }) {
     } catch (e) { setErr((e as Error).message); setBusy(false); }
   }
   return (
-    <div className="modal" onClick={onClose}>
-      <form className="card" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
-        <h2 style={{ fontSize: 30 }}>{t("New status page")}</h2>
-        <label className="fld">{t("Title")}<input className="in" required autoFocus value={title} onChange={(e) => { setTitle(e.target.value); if (!slug) setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")); }} placeholder={t("Acme Status")} /></label>
-        <label className="fld">{t("Slug")}<input className="in mono" required pattern="[a-z0-9-]{3,40}" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder={t("acme")} /></label>
-        {err && <p className="err">{err}</p>}
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-          <button type="button" className="btn" onClick={onClose}>{t("Cancel")}</button><button className="btn primary" disabled={busy}>{busy ? t("Creating…") : t("Create")}</button>
+    <ModalDialog onClose={onClose} ariaLabel={t("New status page")}>
+      <form className="card mform" onSubmit={submit}>
+        <div className="mhead">
+          <h2>{t("New status page")}</h2>
+          <button type="button" className="icon-btn mclose" aria-label={t("Close")} onClick={onClose}>×</button>
+        </div>
+        <div className="mbody">
+          <label className="fld">{t("Title")}<input className="in" required autoFocus value={title} onChange={(e) => { setTitle(e.target.value); if (!slug) setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")); }} placeholder={t("Acme Status")} /></label>
+          <label className="fld">{t("Slug")}<input className="in mono" required pattern="[a-z0-9-]{3,40}" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder={t("acme")} /></label>
+        </div>
+        <div className="mfoot">
+          {err && <p className="err">{err}</p>}
+          <div className="mbtns">
+            <button type="button" className="btn" onClick={onClose}>{t("Cancel")}</button><button className="btn primary" disabled={busy}>{busy ? t("Creating…") : t("Create")}</button>
+          </div>
         </div>
       </form>
-    </div>
+    </ModalDialog>
   );
 }
 
@@ -112,7 +119,7 @@ export function StatusPageEditor({ id }: { id: string }) {
       setTimeout(() => setSaved(false), 1800);
     } catch (e) {
       const x = e as Error & { code?: string; upgradeUrl?: string };
-      setErr(x.code === "branding_not_allowed" ? t("Your plan cannot hide the OpenUptime branding.") : x.message);
+      setErr(x.code === "branding_not_allowed" ? t("Your plan cannot hide the MTCX Tools branding.") : x.message);
       setUpgrade(x.code ? x.upgradeUrl : undefined);
     }
     setPending("");
@@ -155,12 +162,12 @@ export function StatusPageEditor({ id }: { id: string }) {
             </button>
             {/* a page that already hides the brand keeps the flag after a downgrade; the toggle stays usable to turn it off */}
             <button type="button" className="route tog" disabled={page.branding?.allowed === false && !page.hideBranding} onClick={() => setPage({ ...page, hideBranding: !page.hideBranding })}>
-              <div><b style={{ fontWeight: 500 }}>{t("Hide OpenUptime branding")}</b><small>{t("Remove the OpenUptime mark and “Powered by” line. The header shows the logo of your website link instead.")}</small></div>
+              <div><b style={{ fontWeight: 500 }}>{t("Hide MTCX Tools branding")}</b><small>{t("Remove the MTCX Tools mark and “Powered by” line. The header shows the logo of your website link instead.")}</small></div>
               <span className={`tg ${page.hideBranding ? "on" : ""}`} />
             </button>
             {page.branding?.allowed === false && (
               <p className="faint" style={{ fontSize: 13, margin: 0 }}>
-                {page.hideBranding ? t("Your plan no longer includes this, so OpenUptime branding is shown again.") : t("Not included in your plan.")}
+                {page.hideBranding ? t("Your plan no longer includes this, so MTCX Tools branding is shown again.") : t("Not included in your plan.")}
                 {page.branding.upgradeUrl && <> <a href={page.branding.upgradeUrl}>{t("Upgrade")}</a></>}
               </p>
             )}

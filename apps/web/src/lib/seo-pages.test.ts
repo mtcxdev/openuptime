@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { SEGMENTS, TOOLS, type Faq } from "./seo-pages";
 import type { L } from "./changelog";
 
-const SUFFIX = " · OpenUptime".length;
+const SUFFIX = " · MTCX Tools".length;
 const both = (x: L) => x.en.trim().length > 0 && x.zh.trim().length > 0;
 const faqs = (list: Faq[]) => list.every((f) => both(f.q) && both(f.a));
 const page = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), "utf8");

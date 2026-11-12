@@ -45,7 +45,7 @@ function headTags(html, loc) {
     ORIGIN && `<link rel="canonical" href="${url}">`,
     alternates,
     `<meta property="og:type" content="website">`,
-    `<meta property="og:site_name" content="OpenUptime">`,
+    `<meta property="og:site_name" content="MTCX Tools">`,
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(desc)}">`,
     ORIGIN && `<meta property="og:url" content="${url}">`,

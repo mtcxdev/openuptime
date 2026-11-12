@@ -59,12 +59,12 @@ ALLOW_PRIVATE_TARGETS=true
     <p>Select only approved private regions under <strong>Check from</strong>, excluding auto. The coordinator can accept that private MCP target without globally allowing its own private-target access. Preview sends the first selected region: check its displayed label. Header-authenticated discovery and calls run on the remote probe. Unreachable MCP probes never trigger automatic local retries.</p>
     <p><strong>OAuth still performs central discovery.</strong> The coordinator must be able and permitted to fetch MCP protected-resource metadata and trusted issuer metadata/token endpoints. A private probe does not grant this access. Provide centrally reachable metadata and suitable coordinator network policy, or use header authentication for endpoints accessible only inside the probe network. Private probes alone do not guarantee private OAuth compatibility.</p>
     <h2 id="api-examples">API examples</h2>
-    <p>POST <code>/api/monitors</code> using your OpenUptime credentials. Headers in this JSON belong to the monitored server.</p><pre><code>{discoveryExample}</code></pre>
+    <p>POST <code>/api/monitors</code> using your MTCX Tools credentials. Headers in this JSON belong to the monitored server.</p><pre><code>{discoveryExample}</code></pre>
     <p>After reviewing a safe tool, PATCH <code>/api/monitors/:id</code>. Adapt arguments and result paths to your service.</p><pre><code>{callExample}</code></pre>
     <p>POST <code>/api/monitors/mcp/preview</code> accepts target, headers, timeoutMs, mcpConfig, region and optional monitorId. GET <code>/api/monitors/:id/mcp-history?days=7</code> returns history (7 or 30 days). POST <code>/api/monitors/:id/mcp-baseline/accept</code> accepts the reviewed observationId and schemaHash.</p>
     <h2 id="troubleshooting">Understand failures</h2>
     <p>The failed stage locates OAuth, service discovery/initialization, catalog listing, required names, schema comparison, tool calls or assertions. Check server logs for details: raw server errors and outputs are not retained. Failure/recovery thresholds control incident opening and resolution.</p>
-    <p>To let an agent manage OpenUptime itself, see <a href="/docs/mcp">the separate MCP server guide</a>.</p>
+    <p>To let an agent manage MTCX Tools itself, see <a href="/docs/mcp">the separate MCP server guide</a>.</p>
   </div>
   <div lang="zh-CN">
     <h1>MCP Uptime Monitor：MCP 可用性监控</h1>
@@ -115,11 +115,11 @@ ALLOW_PRIVATE_TARGETS=true
     <p>检查位置仅选择已批准私有区域，排除 auto；协调器即可接受此私有 MCP 目标，无需全局开启自身私有访问。预览发送第一个已选区域，运行前请核对名称。请求头鉴权的发现/调用在远端探针执行，探针无法连接时不自动改为本地重试。</p>
     <p><strong>OAuth 仍需中央发现。</strong>协调器必须能够且被策略允许访问 MCP 受保护资源元数据，以及受信任签发方的元数据/令牌端点。私有探针不赋予协调器这种访问权限。请提供中央可达元数据并配置网络策略；完全仅在探针网络可达的端点可使用请求头鉴权。不能假定私有探针保证内网 OAuth 完整兼容。</p>
     <h2 id="api-examples-zh">API 示例</h2>
-    <p>使用 OpenUptime 凭据 POST <code>/api/monitors</code>；JSON 内请求头属于被监控服务。</p><pre><code>{discoveryExample}</code></pre>
+    <p>使用 MTCX Tools 凭据 POST <code>/api/monitors</code>；JSON 内请求头属于被监控服务。</p><pre><code>{discoveryExample}</code></pre>
     <p>审阅安全工具后 PATCH <code>/api/monitors/:id</code>，按服务调整参数和结果路径：</p><pre><code>{callExample}</code></pre>
     <p>POST <code>/api/monitors/mcp/preview</code> 接受 target、headers、timeoutMs、mcpConfig、region 和可选 monitorId。GET <code>/api/monitors/:id/mcp-history?days=7</code> 返回 7 或 30 天历史。POST <code>/api/monitors/:id/mcp-baseline/accept</code> 提交已审阅 observationId 和 schemaHash。</p>
     <h2 id="troubleshooting-zh">排查失败</h2>
     <p>阶段定位 OAuth、服务发现/初始化、目录列表、必需名称、schema、工具调用或断言。详细原因查服务端日志，不保留原始服务错误和输出。失败/恢复阈值控制事件开启与恢复。</p>
-    <p>如需 Agent 管理 OpenUptime，见<a href="/docs/mcp">单独的 MCP 服务指南</a>。</p>
+    <p>如需 Agent 管理 MTCX Tools，见<a href="/docs/mcp">单独的 MCP 服务指南</a>。</p>
   </div>
 </Doc>

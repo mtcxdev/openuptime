@@ -76,7 +76,7 @@ export function registerServiceWorker(): void {
       .register("/sw.js", { scope: "/", updateViaCache: "none" })
       .then((reg) => {
         const prompt = () =>
-          toast(t("A new version of OpenUptime is available."), "ok", {
+          toast(t("A new version of MTCX Tools is available."), "ok", {
             key: "pwa-update",
             sticky: true,
             action: { label: t("Refresh"), run: () => applyUpdate(reg) },

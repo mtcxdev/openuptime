@@ -1,22 +1,22 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { t } from "../lib/i18n";
 import TopBar from "./TopBar";
+import { MtcxMark } from "./MtcxMark";
 
 const dot = (
-  <span className="auth-mk"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21" /></svg></span>
+  <span className="auth-mk"><MtcxMark size={28} /></span>
 );
 
-/** Split-screen frame shared by login / signup / forgot / reset (design boards Login, Signup, Forgot). */
+/** Split-screen frame shared by login / signup / forgot / reset. */
 export function AuthShell({ side, children }: { side: "login" | "signup"; children: ReactNode }) {
   return (
     <div className="auth2">
       <div className="auth-l">
         <header className="auth-top">
-          <a href="/" className="auth-brand">{dot}<b>OpenUptime</b></a>
+          <a href="/" className="auth-brand">{dot}<b>MTCX Tools</b></a>
           <div className="auth-tools"><TopBar /></div>
         </header>
         <div className="auth-form">{children}</div>
-        <p className="legal faint">{t("Open source · MIT licensed.")}</p>
       </div>
       <aside className="auth-r" aria-hidden="true">
         {side === "login" ? <LoginShowcase /> : <SignupShowcase />}
@@ -29,7 +29,6 @@ function LoginShowcase() {
   const rows: [string, string, string][] = [["api.example.com", "99.98%", "up"], ["checkout.example.com", "100%", "up"], ["status.example.com", "99.91%", "up"]];
   return (
     <div className="show">
-      <p className="show-k mono faint">{t("EXAMPLE STATUS PAGE")}</p>
       <div className="show-card">
         <div className="show-h"><i className="show-dot" /><b>{t("All systems operational")}</b></div>
         {rows.map(([n, u]) => (
@@ -41,20 +40,17 @@ function LoginShowcase() {
         ))}
       </div>
       <h2 className="serif show-t">{t("Know first. Fix fast.")}</h2>
-      <p className="muted show-s">{t("Uptime checks, incidents and a public status page, all in one place.")}</p>
     </div>
   );
 }
 
 function SignupShowcase() {
-  // the deployment's own origin, resolved after mount so server and client markup agree
   const [origin, setOrigin] = useState("https://your-domain");
   useEffect(() => setOrigin(location.origin), []);
   const items: [string, string][] = [
     [t("HTTP, TCP, DNS and heartbeat checks"), t("Monitor sites, ports, records and cron jobs.")],
     [t("Alerts where you already are"), t("Email, Slack, Telegram, PagerDuty and webhooks.")],
     [t("Public status pages"), t("Share live status and incident updates with your users.")],
-    [t("Open source"), t("Self-host it for free on Cloudflare or Docker.")],
   ];
   return (
     <div className="show">

@@ -44,7 +44,7 @@ export default function Usage() {
   const capPct = plan?.maxActiveMonitors ? Math.min(100, Math.round((activeMonitors / plan.maxActiveMonitors) * 100)) : 0;
   return (
     <>
-      <div className="ph"><div><h1>{t("Plan & usage")}</h1><p className="muted">{t("Usage is counted per workspace and resets every billing period.")}</p></div></div>
+      <div className="ph"><div><h1>{t("Plan & usage")}</h1></div></div>
       <div className="usage-wrap">
         {plan && (
           <section className="card sect plan-card">
@@ -75,14 +75,16 @@ export default function Usage() {
           <section className="card sect">
             <h3>{t("Monitors that use the most checks")}</h3>
             <p className="muted">{t("Estimated from each monitor's interval. Lengthen the interval of monitors that matter less.")}</p>
-            <table className="usage-tbl">
-              <thead><tr><th>{t("Monitor")}</th><th>{t("Interval")}</th><th>{t("Checks / month")}</th><th>{t("Share")}</th></tr></thead>
-              <tbody>
-                {top.map(({ m, n }) => (
-                  <tr key={m.id}><td>{m.name}</td><td className="mono">{m.intervalSec >= 60 ? `${Math.round(m.intervalSec / 60)} min` : `${m.intervalSec}s`}</td><td className="mono">{fmt(n)}</td><td className="mono">{total ? ((n / total) * 100).toFixed(1) : "0"}%</td></tr>
-                ))}
-              </tbody>
-            </table>
+            <div style={{ overflowX: "auto" }}>
+              <table className="usage-tbl">
+                <thead><tr><th>{t("Monitor")}</th><th>{t("Interval")}</th><th>{t("Checks / month")}</th><th>{t("Share")}</th></tr></thead>
+                <tbody>
+                  {top.map(({ m, n }) => (
+                    <tr key={m.id}><td>{m.name}</td><td className="mono">{m.intervalSec >= 60 ? `${Math.round(m.intervalSec / 60)} min` : `${m.intervalSec}s`}</td><td className="mono">{fmt(n)}</td><td className="mono">{total ? ((n / total) * 100).toFixed(1) : "0"}%</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
       </div>

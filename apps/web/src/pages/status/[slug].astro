@@ -61,13 +61,13 @@ const okAt = (data.page.uptimeOkPct ?? 99.9) / 100;
 const warnAt = (data.page.uptimeWarnPct ?? 98) / 100;
 const dayClass = (u: number) => (u >= okAt ? "" : u >= warnAt ? "w" : "d");
 const hideBrand = !!data.page.hideBranding;
-// a page that links to its own website shows that website's logo in place of OpenUptime's mark
+// a page that links to its own website shows that website's logo in place of MTCX Tools' mark
 const logo = siteLogo(data.page.externalUrl);
 Astro.response.headers.set("cache-control", privateResponse || hist.privateResponse || maint.privateResponse ? "private, no-store" : "public, max-age=30, s-maxage=30");
 ---
 <Base title={`${data.page.title} · Status`}>
   <Fragment slot="head">
-    {!hideBrand && <meta name="generator" content="openuptime.app" />}
+    {!hideBrand && <meta name="generator" content="MTCX Tools" />}
     <link rel="canonical" href={canon} />
     <link rel="alternate" type="application/rss+xml" title={`${data.page.title} status`} href={`${base}/api/public/status/${slug}/rss.xml`} />
     <link rel="alternate" hreflang="en" href={`${base}/status/${slug}`} />
@@ -76,7 +76,7 @@ Astro.response.headers.set("cache-control", privateResponse || hist.privateRespo
   </Fragment>
   <div class="pub">
     <header class="pub-top"><div class="pub-wrap pub-top-in">
-      <span class="pub-brand">{!hideBrand && !logo && <span class="mk"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21" /></svg></span>}{logo && <img class="pub-logo" src={logo} width="26" height="26" alt="" referrerpolicy="no-referrer" loading="eager" decoding="async" />}{data.page.title}{data.page.externalUrl && (
+      <span class="pub-brand">{!hideBrand && !logo && <span class="mk"><img src="/icons/logo-128.png" width="26" height="26" alt="" /></span>}{logo && <img class="pub-logo" src={logo} width="26" height="26" alt="" referrerpolicy="no-referrer" loading="eager" decoding="async" />}{data.page.title}{data.page.externalUrl && (
         <a class="pub-ext" href={data.page.externalUrl} target="_blank" rel="nofollow noopener noreferrer" aria-label={t("Visit website")} title={t("Visit website")}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6" /><path d="M10 14 21 3" /><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></svg></a>
       )}</span>
       <a class="btn sm primary" href="#subscribe">{t("Subscribe")}</a>
@@ -200,7 +200,7 @@ Astro.response.headers.set("cache-control", privateResponse || hist.privateRespo
     </main>
 
     <footer class="pub-wrap pub-foot">
-      {!hideBrand && <span>{t("Powered by")} <a href={PRODUCT_URL}>OpenUptime</a></span>}
+      {!hideBrand && <span>{t("Powered by")} <a href={PRODUCT_URL}>MTCX Tools</a></span>}
     </footer>
     <script is:inline data-astro-rerun define:vars={{ slug, sending: t("Subscribing…"), ok: t("Check your inbox to confirm your subscription."), bad: t("Could not subscribe. Try again."), slow: t("Too many attempts. Please try again later.") }}>
       document.getElementById("sub").addEventListener("submit", async (e) => {

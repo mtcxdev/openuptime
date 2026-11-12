@@ -27,6 +27,16 @@ export interface ChangelogEntry {
 /** Community entries, newest first within a day. Cloud-only entries are added by changelog-cloud.ts. */
 export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
   {
+    id: "mtcx-tools-ui-overhaul", date: "2026-11-12", edition: "community",
+    title: { en: "MTCX Tools UI and mobile polish", zh: "MTCX Tools 界面与移动端体验优化" },
+    summary: { en: "The web interface adopts MTCX Tools typography, colors, icons, and responsive mobile layouts with cleaner screens.", zh: "网页端全面采用 MTCX Tools 的字体、配色、图标与移动端响应式布局，界面展示更加精简清晰。" },
+    points: [
+      { en: "Unified dark and light surfaces, cards, tables, forms, buttons, and modal dialogs across the console, docs, sign-in, and public status pages.", zh: "统一了控制台、文档、登录认证与公开状态页在深浅主题下的卡片、表格、表单、按钮与弹窗样式。" },
+      { en: "Mobile screens use compact modal sheets, stacked maintenance schedules, scrollable usage tables, and tighter status indicators without redundant tags or horizontal overflow.", zh: "移动端改用底部弹层、堆叠维护时间栏、可滚动的用量表格以及更克制的状态标识，去除冗余角标并消除横向溢出。" },
+      { en: "Updated favicons, web app manifest icons, and brand marks across every page with the official MTCX Tools logo assets.", zh: "将各页面的网站图标、应用清单图标与品牌标识统一更新为正式的 MTCX Tools 图标。" },
+    ],
+  },
+  {
     id: "hyperdrive-query-budget", date: "2026-11-11", edition: "community",
     title: { en: "Dramatically fewer database queries per check", zh: "大幅减少每次检测的数据库查询次数" },
     summary: { en: "Scheduled checks, heartbeats, public status endpoints, and cron housekeeping now do far fewer database round trips, keeping small Cloudflare Workers Free plans well within Hyperdrive's daily quota.", zh: "定时检测、心跳上报、公开状态页接口以及计划任务现在大幅减少数据库往返次数，让 Cloudflare Workers 免费版远低于 Hyperdrive 的每日配额上限。" },
@@ -98,12 +108,12 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
   {
     id: "home-page-redesign", date: "2026-10-31", edition: "community",
     title: { en: "Redesigned home page", zh: "首页改版" },
-    summary: { en: "The home page shows how OpenUptime works with pictures of the product instead of long blocks of text.", zh: "首页用产品示意图代替大段文字，直观展示 OpenUptime 的用法。" },
+    summary: { en: "The home page shows how MTCX Tools works with pictures of the product instead of long blocks of text.", zh: "首页用产品示意图代替大段文字，直观展示 MTCX Tools 的用法。" },
     points: [
       { en: "A sample conversation shows an AI agent creating and pausing a monitor over MCP.", zh: "新增一段示例对话，展示 AI Agent 通过 MCP 创建和暂停监控。" },
       { en: "The full feature list is grouped into tabs, and self-hosting with Docker is mentioned next to Cloudflare.", zh: "完整功能清单按分类放进标签页，自托管部分在 Cloudflare 之外也写明了 Docker。" },
       { en: "Every language and the dark theme carry the new design.", zh: "所有语言版本和深色主题都已使用新设计。" },
-      { en: "Links to OpenUptime shared in chats and social posts show a preview image in the new style.", zh: "在聊天和社交平台分享 OpenUptime 链接时，预览图也换成了新风格。" },
+      { en: "Links to MTCX Tools shared in chats and social posts show a preview image in the new style.", zh: "在聊天和社交平台分享 MTCX Tools 链接时，预览图也换成了新风格。" },
     ],
     cloud: { en: "The hosted home page also spells out the free plan at the top: 26,000 checks a month, 3 monitors and no credit card.", zh: "托管版首页顶部还直接写明免费套餐：每月 26,000 次检测、3 个监控，无需信用卡。" },
   },
@@ -308,7 +318,7 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     title: { en: "Status page header and phone layout", zh: "状态页页头与手机布局" },
     summary: { en: "A status page shows your website's icon in the header, and the phone layout reads in a better order.", zh: "状态页页头显示你网站的图标，手机上的排布顺序也更合理。" },
     points: [
-      { en: "The icon replaces the OpenUptime mark; without a website link the page looks as before.", zh: "该图标会替换 OpenUptime 的标志；没有设置网站链接的页面保持原样。" },
+      { en: "The icon replaces the MTCX Tools mark; without a website link the page looks as before.", zh: "该图标会替换 MTCX Tools 的标志；没有设置网站链接的页面保持原样。" },
       { en: "On phones, the components and incidents come first and the subscribe box follows them.", zh: "手机上先显示组件和事件，订阅框排在它们后面。" },
     ],
   },
@@ -665,11 +675,11 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     edition: "community",
     title: { en: "Comparison and use-case pages", zh: "对比与使用场景页面" },
     summary: {
-      en: "New pages compare OpenUptime with other uptime tools and show how SaaS teams, agencies, online stores and DevOps teams set it up.",
-      zh: "新增页面把 OpenUptime 与其他可用性监控工具做对比，并介绍 SaaS 团队、代理机构、电商和 DevOps 团队的配置方式。",
+      en: "New pages compare MTCX Tools with other uptime tools and show how SaaS teams, agencies, online stores and DevOps teams set it up.",
+      zh: "新增页面把 MTCX Tools 与其他可用性监控工具做对比，并介绍 SaaS 团队、代理机构、电商和 DevOps 团队的配置方式。",
     },
     points: [
-      { en: "Alternatives pages for UptimeRobot, Better Stack, Pingdom, StatusCake and Uptime Kuma list what OpenUptime has, what it lacks, who each tool suits and how to move monitors over with the JSON import.", zh: "UptimeRobot、Better Stack、Pingdom、StatusCake 和 Uptime Kuma 的对比页，列出 OpenUptime 有什么、缺什么、各自适合谁，以及如何用 JSON 导入迁移监控项。" },
+      { en: "Alternatives pages for UptimeRobot, Better Stack, Pingdom, StatusCake and Uptime Kuma list what MTCX Tools has, what it lacks, who each tool suits and how to move monitors over with the JSON import.", zh: "UptimeRobot、Better Stack、Pingdom、StatusCake 和 Uptime Kuma 的对比页，列出 MTCX Tools 有什么、缺什么、各自适合谁，以及如何用 JSON 导入迁移监控项。" },
       { en: "Use-case pages for SaaS, agencies, e-commerce and DevOps teams map concrete monitoring scenarios to monitor types, status pages and alert routing.", zh: "面向 SaaS、代理机构、电商和 DevOps 团队的使用场景页，把具体的监控场景对应到监控类型、状态页和告警路由。" },
     ],
     link: { href: "/alternatives", label: { en: "See the comparisons", zh: "查看对比" } },
@@ -759,8 +769,8 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     edition: "community",
     title: { en: "No false outages when the checker is offline", zh: "检测端断网时不再误报故障" },
     summary: {
-      en: "When a check fails to connect, OpenUptime first makes sure the machine running it can reach the internet, and discards the result if it cannot.",
-      zh: "检测连接失败时，OpenUptime 会先确认执行检测的机器自身能上网；如果不能，就丢弃这次结果。",
+      en: "When a check fails to connect, MTCX Tools first makes sure the machine running it can reach the internet, and discards the result if it cannot.",
+      zh: "检测连接失败时，MTCX Tools 会先确认执行检测的机器自身能上网；如果不能，就丢弃这次结果。",
     },
     points: [
       { en: "A network failure on the checker's side no longer counts as a failed check, opens an incident or sends an alert.", zh: "检测端自身的网络故障不再计为失败检测，也不会创建事件或发送告警。" },
@@ -884,8 +894,8 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     edition: "community",
     title: { en: "iOS app in public beta", zh: "iOS 应用公开测试" },
     summary: {
-      en: "The OpenUptime iOS app is in public beta on TestFlight.",
-      zh: "OpenUptime iOS 应用现已通过 TestFlight 公开测试。",
+      en: "The MTCX Tools iOS app is in public beta on TestFlight.",
+      zh: "MTCX Tools iOS 应用现已通过 TestFlight 公开测试。",
     },
     points: [
       { en: "Join the beta from the iOS page with one tap on TestFlight.", zh: "在 iOS 页面点一下即可通过 TestFlight 加入测试。" },
@@ -935,8 +945,8 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     edition: "community",
     title: { en: "Listed in the MCP Registry", zh: "收录到 MCP Registry" },
     summary: {
-      en: "The OpenUptime MCP server can now be found in the official MCP Registry as app.openuptime/mcp.",
-      zh: "OpenUptime 的 MCP 服务现在可以在官方 MCP Registry 中以 app.openuptime/mcp 找到。",
+      en: "The MTCX Tools MCP server can now be found in the official MCP Registry as app.openuptime/mcp.",
+      zh: "MTCX Tools 的 MCP 服务现在可以在官方 MCP Registry 中以 app.openuptime/mcp 找到。",
     },
     points: [
       { en: "The MCP docs gain example prompts and a troubleshooting section for authorization and scope problems.", zh: "MCP 文档新增示例提示词，以及授权和范围问题的排错说明。" },
@@ -964,7 +974,7 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     edition: "community",
     title: { en: "iOS app page", zh: "iOS 应用页面" },
     summary: {
-      en: "The website now has a page for the OpenUptime iOS app, linked from the footer.",
+      en: "The website now has a page for the MTCX Tools iOS app, linked from the footer.",
       zh: "网站新增 iOS 应用页面，并在页脚提供入口。",
     },
     points: [
@@ -1085,23 +1095,23 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     id: "hide-status-page-branding",
     date: "2026-10-12",
     edition: "community",
-    title: { en: "Hide OpenUptime branding", zh: "隐藏 OpenUptime 品牌标识" },
+    title: { en: "Hide MTCX Tools branding", zh: "隐藏 MTCX Tools 品牌标识" },
     summary: {
-      en: "A status page can now drop the OpenUptime mark and “Powered by” line and show your own logo instead.",
-      zh: "状态页现在可以去掉 OpenUptime 标志和“技术支持”字样，改为显示你自己的 Logo。",
+      en: "A status page can now drop the MTCX Tools mark and “Powered by” line and show your own logo instead.",
+      zh: "状态页现在可以去掉 MTCX Tools 标志和“技术支持”字样，改为显示你自己的 Logo。",
     },
     points: [
       {
-        en: "Turn on “Hide OpenUptime branding” in the Branding card of a status page.",
-        zh: "在状态页的“品牌”卡片里打开“隐藏 OpenUptime 品牌标识”。",
+        en: "Turn on “Hide MTCX Tools branding” in the Branding card of a status page.",
+        zh: "在状态页的“品牌”卡片里打开“隐藏 MTCX Tools 品牌标识”。",
       },
       {
         en: "If the page has a website link, its header shows that website’s logo, fetched from favicon.im; without a link it shows the title only.",
         zh: "页面设置了网站链接时，页眉显示该网站的 Logo（取自 favicon.im）；没有链接则只显示标题。",
       },
       {
-        en: "Confirmation and incident emails to subscribers then go out under the page title instead of OpenUptime.",
-        zh: "订阅者收到的确认邮件和事件通知邮件，也会以状态页标题而不是 OpenUptime 的名义发出。",
+        en: "Confirmation and incident emails to subscribers then go out under the page title instead of MTCX Tools.",
+        zh: "订阅者收到的确认邮件和事件通知邮件，也会以状态页标题而不是 MTCX Tools 的名义发出。",
       },
       {
         en: "The option is also available through the API and MCP as hideBranding.",
@@ -1109,8 +1119,8 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
       },
     ],
     cloud: {
-      en: "On the hosted service this is included in the Team plan only. If a workspace moves to another plan, its pages show OpenUptime branding again and your setting is kept.",
-      zh: "托管服务中仅 Team 套餐包含此功能。工作区降级后，页面会重新显示 OpenUptime 品牌标识，你的设置会保留。",
+      en: "On the hosted service this is included in the Team plan only. If a workspace moves to another plan, its pages show MTCX Tools branding again and your setting is kept.",
+      zh: "托管服务中仅 Team 套餐包含此功能。工作区降级后，页面会重新显示 MTCX Tools 品牌标识，你的设置会保留。",
     },
     link: { href: "/docs/api", label: { en: "Read the API docs", zh: "阅读 API 文档" } },
   },
@@ -1120,13 +1130,13 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     edition: "community",
     title: { en: "Install the back office as an app", zh: "把后台安装为应用" },
     summary: {
-      en: "OpenUptime can be installed from the browser, and an open tab tells you when a new version is ready.",
-      zh: "可以从浏览器把 OpenUptime 安装成应用；有新版本时，已打开的页面会提示你刷新。",
+      en: "MTCX Tools can be installed from the browser, and an open tab tells you when a new version is ready.",
+      zh: "可以从浏览器把 MTCX Tools 安装成应用；有新版本时，已打开的页面会提示你刷新。",
     },
     points: [
       {
-        en: "Use “Install” in your browser to get OpenUptime in its own window, with an icon on your desktop or home screen.",
-        zh: "在浏览器中选择「安装」，即可在独立窗口中使用 OpenUptime，并在桌面或主屏幕上留下图标。",
+        en: "Use “Install” in your browser to get MTCX Tools in its own window, with an icon on your desktop or home screen.",
+        zh: "在浏览器中选择「安装」，即可在独立窗口中使用 MTCX Tools，并在桌面或主屏幕上留下图标。",
       },
       {
         en: "An open tab checks for a new version every 6 hours and offers a Refresh button when there is one.",
@@ -1207,8 +1217,8 @@ export const COMMUNITY_ENTRIES: ChangelogEntry[] = [
     edition: "community",
     title: { en: "Open-source release", zh: "开源发布" },
     summary: {
-      en: "OpenUptime is MIT licensed and runs without limits on your own infrastructure.",
-      zh: "OpenUptime 以 MIT 协议开源，可在你自己的基础设施上无限制运行。",
+      en: "MTCX Tools is MIT licensed and runs without limits on your own infrastructure.",
+      zh: "MTCX Tools 以 MIT 协议开源，可在你自己的基础设施上无限制运行。",
     },
     points: [
       {

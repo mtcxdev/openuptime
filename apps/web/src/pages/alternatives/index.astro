@@ -5,9 +5,9 @@ import type { L } from "../../lib/changelog";
 
 const l = (en: string, zh: string): L => ({ en, zh });
 const faq: Faq[] = [
-  { q: l("What is OpenUptime?", "OpenUptime 是什么？"), a: l("OpenUptime is open-source uptime monitoring with incidents, alerts and public status pages. It runs as a hosted service, in one Docker container with Postgres, or on Cloudflare Workers.", "OpenUptime 是开源的可用性监控，包含事件、告警和公开状态页。它可以作为托管服务使用，也可以用一个 Docker 容器加 Postgres 运行，或部署在 Cloudflare Workers 上。") },
-  { q: l("Which monitor types does OpenUptime support?", "OpenUptime 支持哪些监控类型？"), a: OU.types },
-  { q: l("What is missing from OpenUptime?", "OpenUptime 缺少什么？"), a: l(OU_GAPS.map((g) => g.en).join(" "), OU_GAPS.map((g) => g.zh).join("")) },
+  { q: l("What is MTCX Tools?", "MTCX Tools 是什么？"), a: l("MTCX Tools provides uptime monitoring with incidents, alerts and public status pages. It runs on Cloudflare Workers with Postgres or in a Docker container.", "MTCX Tools 提供可用性监控、事件管理、告警与公开状态页，可运行在 Cloudflare Workers 或 Docker 容器中。") },
+  { q: l("Which monitor types does MTCX Tools support?", "MTCX Tools 支持哪些监控类型？"), a: OU.types },
+  { q: l("What is missing from MTCX Tools?", "MTCX Tools 缺少什么？"), a: l(OU_GAPS.map((g) => g.en).join(" "), OU_GAPS.map((g) => g.zh).join("")) },
 ];
 const blurb: Record<string, L> = {
   uptimerobot: l("Hosted, simple website, keyword and port checks.", "托管服务，简单的网站、关键字与端口检测。"),
@@ -18,11 +18,11 @@ const blurb: Record<string, L> = {
 };
 const langs = [{ attr: "en", k: "en" }, { attr: "zh-CN", k: "zh" }] as const;
 const ui = {
-  en: { h1: "OpenUptime alternatives and comparisons", lede: "Pages for people weighing uptime tools. Each one says what OpenUptime has, what it lacks and who should pick the other product.", pages: "Compare with", how: "How these pages are written", howP: "Every statement about OpenUptime comes from its code and documentation. Statements about other products are general and avoid prices and limits, because those change; check their own sites. If you find a mistake, open an issue on GitHub.", usecases: "By use case", uc: "See monitoring set-ups for SaaS, agencies, e-commerce and DevOps teams.", ucA: "Use cases", faq: "Questions" },
-  zh: { h1: "OpenUptime 替代方案与对比", lede: "写给正在比较可用性监控工具的人。每一页都会说明 OpenUptime 有什么、缺什么，以及什么情况下更适合选另一个产品。", pages: "对比对象", how: "这些页面是怎么写的", howP: "关于 OpenUptime 的每一句话都来自它的代码和文档。关于其他产品的内容只是概括，不写价格和额度，因为这些会变化；请以其官网为准。如发现错误，欢迎在 GitHub 上提 issue。", usecases: "按使用场景", uc: "查看 SaaS、代理机构、电商和 DevOps 团队的监控配置方式。", ucA: "使用场景", faq: "常见问题" },
+  en: { h1: "MTCX Tools alternatives and comparisons", lede: "Pages for people weighing uptime tools. Each one says what MTCX Tools has, what it lacks and who should pick the other product.", pages: "Compare with", how: "How these pages are written", howP: "Every statement about MTCX Tools comes from its code and documentation. Statements about other products are general and avoid prices and limits, because those change; check their own sites.", usecases: "By use case", uc: "See monitoring set-ups for SaaS, agencies, e-commerce and DevOps teams.", ucA: "Use cases", faq: "Questions" },
+  zh: { h1: "MTCX Tools 替代方案与对比", lede: "写给正在比较可用性监控工具的人。每一页都会说明 MTCX Tools 有什么、缺什么，以及什么情况下更适合选另一个产品。", pages: "对比对象", how: "这些页面是怎么写的", howP: "关于 MTCX Tools 的每一句话都来自代码和文档。关于其他产品的内容只是概括，不写价格和额度，因为这些会变化；请以其官网为准。", usecases: "按使用场景", uc: "查看 SaaS、代理机构、电商和 DevOps 团队的监控配置方式。", ucA: "使用场景", faq: "常见问题" },
 } as const;
 ---
-<SeoShell title={l("Uptime monitoring alternatives", "可用性监控替代方案")} description={l("Compare OpenUptime with UptimeRobot, Better Stack, Pingdom, StatusCake and Uptime Kuma: features, gaps and who each fits.", "将 OpenUptime 与 UptimeRobot、Better Stack、Pingdom、StatusCake 和 Uptime Kuma 对比：功能、差距与各自适合的人群。")} path="/alternatives" faq={faq}>
+<SeoShell title={l("Uptime monitoring alternatives", "可用性监控替代方案")} description={l("Compare MTCX Tools with UptimeRobot, Better Stack, Pingdom, StatusCake and Uptime Kuma: features, gaps and who each fits.", "将 MTCX Tools 与 UptimeRobot、Better Stack、Pingdom、StatusCake 和 Uptime Kuma 对比：功能、差距与各自适合的人群。")} path="/alternatives" faq={faq}>
   {langs.map(({ attr, k }) => (
     <div lang={attr}>
       <h1>{ui[k].h1}</h1>

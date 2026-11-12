@@ -36,11 +36,10 @@ export default function Settings() {
   }
   return (
     <>
-      <div className="ph"><div><h1>{t("Settings")}</h1><p className="muted">{t("Workspace-level preferences.")}</p></div></div>
+      <div className="ph"><div><h1>{t("Settings")}</h1></div></div>
       <div className="set-wrap">
         <form className="card sect" onSubmit={save}>
           <h3>{t("General")}</h3>
-          <p className="muted">{t("The name your team sees across OpenUptime.")}</p>
           <label className="fld">{t("Workspace name")}<input className="in" required value={name} onChange={(e) => setName(e.target.value)} /></label>
           {err && <p className="err">{err}</p>}
           <div><button className="btn primary" disabled={busy || saved || name === orig}>{busy ? t("Saving…") : saved ? t("Saved ✓") : t("Save changes")}</button></div>
@@ -89,13 +88,6 @@ export default function Settings() {
             {t("Email me a report every month")}
           </label>
           {reportErr && <p className="err">{reportErr}</p>}
-        </div>
-        <div className="card sect">
-          <h3>{t("Runtime")}</h3>
-          <div className="kv">
-            <div><span>{t("Runs on")}</span><b>Cloudflare Workers + Postgres</b></div>
-            <div><span>{t("Check schedule")}</span><b className="mono">* * * * *</b></div>
-          </div>
         </div>
       </div>
     </>

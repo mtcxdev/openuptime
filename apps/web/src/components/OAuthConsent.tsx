@@ -189,7 +189,7 @@ export default function OAuthConsent({ mode }: { mode: "consent" | "workspace" }
             </div>
           </div>
           <h1 className="serif consent-h">{t("Authorize {app}").replace("{app}", name)}</h1>
-          <p className="muted auth-sub">{t("{app} is asking to manage your OpenUptime workspace on your behalf. It will be able to:").replace("{app}", name)}</p>
+          <p className="muted auth-sub">{t("{app} is asking to manage your MTCX Tools workspace on your behalf. It will be able to:").replace("{app}", name)}</p>
           {grant && (
             <ul className="consent-where muted">
               {grant === "all"

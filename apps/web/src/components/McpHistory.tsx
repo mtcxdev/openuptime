@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type McpHistory as History } from "../lib/api";
 import { t } from "../lib/i18n";
+import Select from "./Select";
 
 const ms = (value: number | null) => value == null ? "—" : `${Math.round(value)} ms`;
 export function McpTimingChart({ rows, stage }: { rows: History["results"]; stage: string }) {
@@ -17,7 +18,7 @@ export function McpTimingChart({ rows, stage }: { rows: History["results"]; stag
   const x = (i: number) => 20 + i * 660 / Math.max(1, points.length - 1);
   return <>
     <svg viewBox="0 0 700 170" role="img" aria-label={t("MCP stage latency history")} style={{ width: "100%", height: 180 }}>
-      <title>{t("MCP stage latency history")} · {stage}</title>
+      <title>{`${t("MCP stage latency history")} · ${stage}`}</title>
       <path d="M20 10V145H685" fill="none" stroke="var(--line)" />
       <text x={24} y={14} fontSize={11} fill="currentColor">{ms(max)}</text>
       {regions.map((region, regionIndex) => {
@@ -59,13 +60,13 @@ export default function McpHistory({ id }: { id: string }) {
   return <section className="card sect" style={{ marginBottom: 26 }}>
     <h3>{t("MCP stage history")}</h3>
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
-      <select className="in" style={{ width: "auto" }} aria-label={t("History window")} value={days} onChange={(e) => setDays(Number(e.target.value) as 7 | 30)}><option value={7}>{t("7 days")}</option><option value={30}>{t("30 days")}</option></select>
+      <Select className="in" compact label={t("History window")} value={days} onChange={(v) => setDays(v)} options={[{ value: 7, label: t("7 days") }, { value: 30, label: t("30 days") }]} />
       <button className="btn" disabled={busy} onClick={() => setReload((n) => n + 1)}>{busy ? t("Loading…") : t("Refresh history")}</button>
     </div>
     {error && <p className="err" role="alert">{error}</p>}
     {report && <>
       <p className="muted">{t("Metrics use all retained samples in this window, not an SLA. Raw tool results and credentials are never included.")}</p>
-      <label className="fld">{t("Timing stage")}<select className="in" value={shownStage} onChange={(e) => setStage(e.target.value)}><option value="total">{t("Total")}</option>{stages.map((name) => <option key={name} value={name}>{name}</option>)}</select></label>
+      <label className="fld">{t("Timing stage")}<Select className="in" value={shownStage} onChange={setStage} options={[{ value: "total", label: t("Total") }, ...stages.map((name) => ({ value: name, label: name }))]} /></label>
       <McpTimingChart rows={report.results} stage={shownStage} />
       <div style={{ overflowX: "auto" }}><table style={{ width: "100%" }}><thead><tr><th>{t("Stage")}</th><th>{t("Samples")}</th><th>p50</th><th>p95</th></tr></thead><tbody>
         <tr><td>{t("Total")}</td><td>{report.metrics.samples}</td><td>{ms(report.metrics.p50)}</td><td>{ms(report.metrics.p95)}</td></tr>

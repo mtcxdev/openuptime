@@ -19,10 +19,10 @@ const more: Entry[] = [
   { href: `${repo}/blob/main/SECURITY.md`, en: "Security", zh: "安全披露", descEn: "How to report a vulnerability privately.", descZh: "如何私下报告安全漏洞。" },
 ];
 ---
-<Doc titleZh="文档：自托管、API、MCP 与状态页组件" descriptionZh="OpenUptime 文档：自托管、REST API、MCP 服务器和可嵌入的状态页组件。" description="Documentation for OpenUptime: self-hosting, the REST API, the MCP server and embeddable status widgets." title="Docs">
+<Doc titleZh="文档：自托管、API、MCP 与状态页组件" descriptionZh="MTCX Tools 文档：自托管、REST API、MCP 服务器和可嵌入的状态页组件。" description="Documentation for MTCX Tools: self-hosting, the REST API, the MCP server and embeddable status widgets." title="Docs">
   <div lang="en">
     <h1>Documentation</h1>
-    <p class="lede">Guides for running, integrating and extending OpenUptime.</p>
+    <p class="lede">Guides for running, integrating and extending MTCX Tools.</p>
     <div class="docs-grid">
       {guides.map((g) => (
         <a class="docs-card" href={g.href}><b>{g.en}</b><span>{g.descEn}</span></a>
@@ -37,7 +37,7 @@ const more: Entry[] = [
   </div>
   <div lang="zh-CN">
     <h1>文档</h1>
-    <p class="lede">运行、集成和扩展 OpenUptime 的指南。</p>
+    <p class="lede">运行、集成和扩展 MTCX Tools 的指南。</p>
     <div class="docs-grid">
       {guides.map((g) => (
         <a class="docs-card" href={g.href}><b>{g.zh}</b><span>{g.descZh}</span></a>
@@ -54,9 +54,9 @@ const more: Entry[] = [
 
 <style is:global>
   .docs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 14px; }
-  .doc a.docs-card { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); text-decoration: none; transition: border-color .15s; }
-  .doc a.docs-card:hover { border-color: var(--accent); }
-  .docs-card b { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .doc a.docs-card { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--mtcx-radius-card, 14px); background: var(--surface); color: var(--ink); text-decoration: none; transition: border-color .15s, background-color .15s; box-shadow: var(--sh, none); }
+  .doc a.docs-card:hover { border-color: var(--accent); background: var(--surface-2); }
+  .docs-card b { font-family: var(--font-display, var(--sans)); font-size: 16px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); }
   .docs-card span { color: var(--muted); font-size: 14px; line-height: 1.55; }
   @media (max-width: 560px) { .docs-grid { grid-template-columns: 1fr; } }
 </style>

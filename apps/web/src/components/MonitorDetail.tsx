@@ -9,6 +9,7 @@ import { ago, api, type Channel, type CheckResult, type Incident, type Monitor, 
 import { pollWhileVisible } from "../lib/poll";
 import { groupRuns } from "../lib/runs";
 import { MonitorForm } from "./Monitors";
+import Select from "./Select";
 
 type Detail = Monitor & { results: CheckResult[]; regionStats: RegionStat[]; incidents: Incident[]; stats: { uptime24h: number | null; uptime7d: number | null; avg24h: number | null; p95: number | null } };
 const every = (s: number) => (s % 3600 === 0 ? `${s / 3600} h` : s % 60 === 0 ? `${s / 60} min` : `${s} s`);
@@ -171,9 +172,14 @@ export default function MonitorDetail({ id }: { id: string }) {
                 <div className="spot">
                   <span className="faint">{t("Test once from")}</span>
                   <div className="spot-pick">
-                    <select className="in" value={spotId} aria-label={t("Test once from")} disabled={!!pending} onChange={(e) => { setSpotFrom(e.target.value); setSpot(null); }}>
-                      {places.map((id) => <option key={id} value={id}>{regionName(id)}</option>)}
-                    </select>
+                    <Select
+                      className="in"
+                      value={spotId}
+                      label={t("Test once from")}
+                      disabled={!!pending}
+                      onChange={(v) => { setSpotFrom(v); setSpot(null); }}
+                      options={places.map((r) => ({ value: r, label: regionName(r) }))}
+                    />
                     <button className="btn sm" disabled={!!pending} onClick={() => act(`spot:${spotId}`, async () => {
                       setSpot(null);
                       const r = await api.checkNow(m.id, spotId);

@@ -3,7 +3,7 @@ import type { L } from "./changelog";
 /**
  * Content of the comparison pages (/alternatives/<tool>) and the use-case pages (/for/<segment>).
  *
- * Every statement about OpenUptime here is checked against the code and docs; see OPENUPTIME_ROWS and the notes beside
+ * Every statement about MTCX Tools here is checked against the code and docs; see OPENUPTIME_ROWS and the notes beside
  * each row. Statements about other products are kept qualitative on purpose: no prices, quotas or counts, because those
  * change. Where a number matters the page says to check the vendor's current pricing.
  */
@@ -22,14 +22,14 @@ export interface Row {
 export interface Tool {
   slug: string;
   name: string;
-  /** <title> without the site suffix, at most 60 characters with " · OpenUptime" appended */
+  /** <title> without the site suffix, at most 60 characters with " · MTCX Tools" appended */
   title: L;
   description: L;
   lede: L;
   /** what the product is, in neutral words */
   about: L;
   rows: Row[];
-  /** things the other product is known for that OpenUptime does not do */
+  /** things the other product is known for that MTCX Tools does not do */
   theyHave: L[];
   bestThem: L[];
   bestUs: L[];
@@ -39,7 +39,7 @@ export interface Tool {
 
 const l = (en: string, zh: string): L => ({ en, zh });
 
-/** Facts about OpenUptime shared by every comparison table. Sources: README, docs/reference.md, docs pages, apps/api. */
+/** Facts about MTCX Tools shared by every comparison table. Sources: README, docs/reference.md, docs pages, apps/api. */
 export const OU = {
   license: l("MIT license, source on GitHub", "MIT 许可证，源码在 GitHub"),
   hosting: l(
@@ -70,7 +70,7 @@ export const OU = {
   team: l("Workspaces, projects and roles with invitations", "工作区、项目与角色，支持邀请成员"),
 } as const;
 
-/** What OpenUptime cannot do today. Every item was checked: there is no code path for it. */
+/** What MTCX Tools cannot do today. Every item was checked: there is no code path for it. */
 export const OU_GAPS: L[] = [
   l("No TLS certificate expiry monitoring.", "不监控 TLS 证书到期。"),
   l("No ICMP ping monitor; use a TCP or HTTP check instead.", "没有 ICMP ping 监控；可改用 TCP 或 HTTP 检测。"),
@@ -80,8 +80,8 @@ export const OU_GAPS: L[] = [
 ];
 
 const importStep = l(
-  "Open Monitors in OpenUptime and upload the JSON file with the import button, or send it to POST /api/monitors/import. Up to 500 monitors per file. Entries that cannot be imported are listed with the reason and the rest are created.",
-  "在 OpenUptime 的监控页用导入按钮上传 JSON 文件，或发送到 POST /api/monitors/import。每个文件最多 500 个监控项。无法导入的条目会连同原因一并列出，其余照常创建。",
+  "Open Monitors in MTCX Tools and upload the JSON file with the import button, or send it to POST /api/monitors/import. Up to 500 monitors per file. Entries that cannot be imported are listed with the reason and the rest are created.",
+  "在 MTCX Tools 的监控页用导入按钮上传 JSON 文件，或发送到 POST /api/monitors/import。每个文件最多 500 个监控项。无法导入的条目会连同原因一并列出，其余照常创建。",
 );
 const fieldsStep = l(
   "The importer reads name (or friendly_name), target (or url, hostname, host), interval in seconds, and type (http, https, keyword, tcp, port, dns, heartbeat, postgres, mysql, redis). Intervals below 60 seconds are raised to 60.",
@@ -97,28 +97,28 @@ const parallelStep = l(
 );
 
 const faqSelfHost = (name: string): Faq => ({
-  q: l(`Can I self-host OpenUptime instead of using ${name}?`, `可以用自托管的 OpenUptime 代替 ${name} 吗？`),
+  q: l(`Can I self-host MTCX Tools instead of using ${name}?`, `可以用自托管的 MTCX Tools 代替 ${name} 吗？`),
   a: l(
-    "Yes. OpenUptime runs from one Docker image with Postgres, or on Cloudflare Workers with a Postgres database you provide. The self-hosted version is the same code as the hosted service.",
-    "可以。OpenUptime 可用一个 Docker 镜像加 Postgres 运行，也可部署在 Cloudflare Workers 上并使用你自己提供的 Postgres 数据库。自托管版本与托管服务是同一份代码。",
+    "Yes. MTCX Tools runs from one Docker image with Postgres, or on Cloudflare Workers with a Postgres database you provide. The self-hosted version is the same code as the hosted service.",
+    "可以。MTCX Tools 可用一个 Docker 镜像加 Postgres 运行，也可部署在 Cloudflare Workers 上并使用你自己提供的 Postgres 数据库。自托管版本与托管服务是同一份代码。",
   ),
 });
 const faqImport = (name: string): Faq => ({
-  q: l(`How do I move my ${name} monitors to OpenUptime?`, `如何把 ${name} 的监控项迁移到 OpenUptime？`),
+  q: l(`How do I move my ${name} monitors to MTCX Tools?`, `如何把 ${name} 的监控项迁移到 MTCX Tools？`),
   a: l(
     "Put your monitors in a JSON list and import it on the Monitors page or through the API. The importer accepts common field names used by other tools, skips entries it cannot read and reports why. Channels and status pages are set up again by hand.",
     "把监控项整理成 JSON 列表，在监控页或通过 API 导入。导入器接受其他工具常见的字段名，读不懂的条目会被跳过并说明原因。告警渠道和状态页需要手动重新设置。",
   ),
 });
 const faqGaps = (name: string): Faq => ({
-  q: l(`What does ${name} do that OpenUptime does not?`, `${name} 有哪些 OpenUptime 没有的功能？`),
+  q: l(`What does ${name} do that MTCX Tools does not?`, `${name} 有哪些 MTCX Tools 没有的功能？`),
   a: l(
-    "OpenUptime has no TLS certificate expiry monitoring, no ICMP ping monitor, no browser or multi-step checks, and no SMS, phone-call or on-call schedule features. If you rely on one of those, check whether the other tool covers it before you switch.",
-    "OpenUptime 没有 TLS 证书到期监控、ICMP ping 监控、浏览器或多步骤检测，也没有短信、电话告警或值班排班功能。如果你依赖其中之一，切换前请先确认。",
+    "MTCX Tools has no TLS certificate expiry monitoring, no ICMP ping monitor, no browser or multi-step checks, and no SMS, phone-call or on-call schedule features. If you rely on one of those, check whether the other tool covers it before you switch.",
+    "MTCX Tools 没有 TLS 证书到期监控、ICMP ping 监控、浏览器或多步骤检测，也没有短信、电话告警或值班排班功能。如果你依赖其中之一，切换前请先确认。",
   ),
 });
 const faqPricing = (name: string): Faq => ({
-  q: l(`Is OpenUptime cheaper than ${name}?`, `OpenUptime 比 ${name} 便宜吗？`),
+  q: l(`Is MTCX Tools cheaper than ${name}?`, `MTCX Tools 比 ${name} 便宜吗？`),
   a: l(
     `Self-hosting costs only the infrastructure you run it on. The hosted service has plans, and ${name} changes its own pricing from time to time, so compare the current pricing pages of both for the number of monitors and check interval you need.`,
     `自托管只需承担运行它的基础设施成本。托管服务有各档套餐，${name} 的价格也会不时调整，请对照两边当前的价格页，按你需要的监控数量和检测间隔来比较。`,
@@ -131,12 +131,12 @@ export const TOOLS: Tool[] = [
     name: "UptimeRobot",
     title: l("UptimeRobot alternative", "UptimeRobot 替代方案"),
     description: l(
-      "OpenUptime vs UptimeRobot: monitor types, status pages, alerting, API and self-hosting compared, with an honest list of gaps.",
-      "OpenUptime 与 UptimeRobot 对比：监控类型、状态页、告警、API 与自托管，并如实列出差距。",
+      "MTCX Tools vs UptimeRobot: monitor types, status pages, alerting, API and self-hosting compared, with an honest list of gaps.",
+      "MTCX Tools 与 UptimeRobot 对比：监控类型、状态页、告警、API 与自托管，并如实列出差距。",
     ),
     lede: l(
-      "UptimeRobot is a hosted service known for quick setup of website, keyword and port checks. OpenUptime covers the same basics, adds multi-region checks and an MCP server, and can be self-hosted.",
-      "UptimeRobot 是托管服务，以快速设置网站、关键字和端口检测见长。OpenUptime 覆盖同样的基础功能，另有多区域检测和 MCP 服务，并且可以自托管。",
+      "UptimeRobot is a hosted service known for quick setup of website, keyword and port checks. MTCX Tools covers the same basics, adds multi-region checks and an MCP server, and can be self-hosted.",
+      "UptimeRobot 是托管服务，以快速设置网站、关键字和端口检测见长。MTCX Tools 覆盖同样的基础功能，另有多区域检测和 MCP 服务，并且可以自托管。",
     ),
     about: l(
       "UptimeRobot is a closed-source, hosted monitoring service with a free tier and paid plans. It is not available as software you run yourself.",
@@ -151,7 +151,7 @@ export const TOOLS: Tool[] = [
       { topic: l("Pricing", "价格"), ou: l("Free to self-host. The hosted service has plans; check the current ones", "自托管免费。托管服务有各档套餐，请查看最新方案"), them: l("Free tier and paid plans; check their current pricing", "有免费档与付费套餐；请查看其最新价格") },
     ],
     theyHave: [
-      l("A long-running hosted service you do not have to operate. With OpenUptime you either use the hosted service or run it yourself.", "无需自行运维的长期托管服务。使用 OpenUptime 时，你要么用托管服务，要么自己运行。"),
+      l("A long-running hosted service you do not have to operate. With MTCX Tools you either use the hosted service or run it yourself.", "无需自行运维的长期托管服务。使用 MTCX Tools 时，你要么用托管服务，要么自己运行。"),
     ],
     bestThem: [
       l("You want a hosted service and the checks you need are plain website, keyword or port checks.", "你想用托管服务，而且需要的只是网站、关键字或端口这类基础检测。"),
@@ -176,12 +176,12 @@ export const TOOLS: Tool[] = [
     name: "Better Stack",
     title: l("Better Stack (Better Uptime) alternative", "Better Stack（Better Uptime）替代方案"),
     description: l(
-      "OpenUptime vs Better Stack (Better Uptime): where an open-source uptime tool fits and where on-call and logs matter more.",
-      "OpenUptime 与 Better Stack（Better Uptime）对比：开源可用性监控适合哪些场景，什么时候值班和日志更重要。",
+      "MTCX Tools vs Better Stack (Better Uptime): where an open-source uptime tool fits and where on-call and logs matter more.",
+      "MTCX Tools 与 Better Stack（Better Uptime）对比：开源可用性监控适合哪些场景，什么时候值班和日志更重要。",
     ),
     lede: l(
-      "Better Stack bundles uptime monitoring with incident management, on-call scheduling and log management in one hosted product. OpenUptime is narrower: monitoring, incidents, alerts and status pages, open source and self-hostable.",
-      "Better Stack 把可用性监控、事件管理、值班排班和日志管理放在同一个托管产品里。OpenUptime 更专注：监控、事件、告警和状态页，开源且可自托管。",
+      "Better Stack bundles uptime monitoring with incident management, on-call scheduling and log management in one hosted product. MTCX Tools is narrower: monitoring, incidents, alerts and status pages, open source and self-hostable.",
+      "Better Stack 把可用性监控、事件管理、值班排班和日志管理放在同一个托管产品里。MTCX Tools 更专注：监控、事件、告警和状态页，开源且可自托管。",
     ),
     about: l(
       "Better Stack (which includes the product formerly called Better Uptime) is a closed-source, hosted platform. Uptime monitoring is one part of it, next to on-call and incident management and log management.",
@@ -196,8 +196,8 @@ export const TOOLS: Tool[] = [
       { topic: l("Pricing", "价格"), ou: l("Free to self-host. The hosted service has plans; check the current ones", "自托管免费。托管服务有各档套餐，请查看最新方案"), them: l("Check their current pricing", "请查看其最新价格") },
     ],
     theyHave: [
-      l("On-call schedules and phone-call or SMS alerts. OpenUptime escalates by channel after a number of minutes unacknowledged, but has no rota.", "值班排班表以及电话、短信告警。OpenUptime 在事件未确认若干分钟后按渠道升级，但没有排班表。"),
-      l("Log management next to monitoring. OpenUptime does not collect logs.", "监控之外还有日志管理。OpenUptime 不收集日志。"),
+      l("On-call schedules and phone-call or SMS alerts. MTCX Tools escalates by channel after a number of minutes unacknowledged, but has no rota.", "值班排班表以及电话、短信告警。MTCX Tools 在事件未确认若干分钟后按渠道升级，但没有排班表。"),
+      l("Log management next to monitoring. MTCX Tools does not collect logs.", "监控之外还有日志管理。MTCX Tools 不收集日志。"),
     ],
     bestThem: [
       l("Your team needs on-call rotations and phone calls for pages, in the same tool as monitoring.", "你的团队需要值班轮换和电话告警，并希望与监控放在同一个工具里。"),
@@ -212,14 +212,14 @@ export const TOOLS: Tool[] = [
       l("List your monitors as JSON with a name, a url or hostname, the interval in seconds and the type. If you have many, the Better Stack API can help you produce that list.", "把监控项整理成 JSON，每项包含名称、url 或 hostname、以秒为单位的间隔和类型。数量较多时，可借助 Better Stack 的 API 生成这份列表。"),
       fieldsStep,
       importStep,
-      l("If PagerDuty is how your team is paged today, add it as a channel in OpenUptime with the same routing key. Otherwise recreate Slack, Telegram, email or webhook channels under Alerting.", "如果你们目前通过 PagerDuty 接收告警，可在 OpenUptime 里用同一个路由密钥添加该渠道；否则请在告警页重新创建 Slack、Telegram、邮件或 Webhook 渠道。"),
+      l("If PagerDuty is how your team is paged today, add it as a channel in MTCX Tools with the same routing key. Otherwise recreate Slack, Telegram, email or webhook channels under Alerting.", "如果你们目前通过 PagerDuty 接收告警，可在 MTCX Tools 里用同一个路由密钥添加该渠道；否则请在告警页重新创建 Slack、Telegram、邮件或 Webhook 渠道。"),
       parallelStep,
     ],
     faq: [
       faqImport("Better Stack"),
       faqGaps("Better Stack"),
       {
-        q: l("Does OpenUptime have on-call scheduling?", "OpenUptime 有值班排班吗？"),
+        q: l("Does MTCX Tools have on-call scheduling?", "MTCX Tools 有值班排班吗？"),
         a: l(
           "No. You can repeat reminders and escalate to other channels when an incident stays unacknowledged, and acknowledge it from the iOS app, but there is no rota or phone-call paging. PagerDuty works as a channel if you already use it for that.",
           "没有。你可以设置重复提醒，并在事件长时间未确认时升级到其他渠道，也可以在 iOS 应用里确认事件，但没有排班表和电话告警。如果你已在用 PagerDuty，可以把它作为一个告警渠道。",
@@ -233,12 +233,12 @@ export const TOOLS: Tool[] = [
     name: "Pingdom",
     title: l("Pingdom alternative", "Pingdom 替代方案"),
     description: l(
-      "OpenUptime vs Pingdom: uptime checks, status pages and alerting compared, and where transaction checks and real user monitoring matter.",
-      "OpenUptime 与 Pingdom 对比：可用性检测、状态页与告警，以及事务检测和真实用户监控的取舍。",
+      "MTCX Tools vs Pingdom: uptime checks, status pages and alerting compared, and where transaction checks and real user monitoring matter.",
+      "MTCX Tools 与 Pingdom 对比：可用性检测、状态页与告警，以及事务检测和真实用户监控的取舍。",
     ),
     lede: l(
-      "Pingdom is an established hosted service for website monitoring, with transaction checks and real user monitoring. OpenUptime covers uptime, incidents and status pages, with the source open and a self-hosted option.",
-      "Pingdom 是老牌托管的网站监控服务，提供事务检测和真实用户监控。OpenUptime 覆盖可用性、事件和状态页，源码公开，并可自托管。",
+      "Pingdom is an established hosted service for website monitoring, with transaction checks and real user monitoring. MTCX Tools covers uptime, incidents and status pages, with the source open and a self-hosted option.",
+      "Pingdom 是老牌托管的网站监控服务，提供事务检测和真实用户监控。MTCX Tools 覆盖可用性、事件和状态页，源码公开，并可自托管。",
     ),
     about: l(
       "Pingdom is a closed-source, hosted product from SolarWinds. Besides uptime checks it offers synthetic transaction monitoring, real user monitoring and page speed measurements.",
@@ -253,8 +253,8 @@ export const TOOLS: Tool[] = [
       { topic: l("Pricing", "价格"), ou: l("Free to self-host. The hosted service has plans; check the current ones", "自托管免费。托管服务有各档套餐，请查看最新方案"), them: l("Check their current pricing", "请查看其最新价格") },
     ],
     theyHave: [
-      l("Scripted, multi-step transaction checks and real user monitoring. OpenUptime checks one request at a time.", "脚本化的多步骤事务检测和真实用户监控。OpenUptime 每次只检测一个请求。"),
-      l("Page speed measurement. OpenUptime records response time of each check but does not analyse page loads.", "页面速度测量。OpenUptime 会记录每次检测的响应时间，但不分析页面加载过程。"),
+      l("Scripted, multi-step transaction checks and real user monitoring. MTCX Tools checks one request at a time.", "脚本化的多步骤事务检测和真实用户监控。MTCX Tools 每次只检测一个请求。"),
+      l("Page speed measurement. MTCX Tools records response time of each check but does not analyse page loads.", "页面速度测量。MTCX Tools 会记录每次检测的响应时间，但不分析页面加载过程。"),
     ],
     bestThem: [
       l("You need to test a sign-in or checkout flow step by step, or measure what real visitors experience.", "你需要逐步测试登录或结账流程，或衡量真实访客的体验。"),
@@ -276,10 +276,10 @@ export const TOOLS: Tool[] = [
       faqImport("Pingdom"),
       faqGaps("Pingdom"),
       {
-        q: l("Can OpenUptime replace Pingdom transaction checks?", "OpenUptime 能替代 Pingdom 的事务检测吗？"),
+        q: l("Can MTCX Tools replace Pingdom transaction checks?", "MTCX Tools 能替代 Pingdom 的事务检测吗？"),
         a: l(
-          "Not directly. OpenUptime checks single requests: status code, a keyword that must or must not appear, and custom headers. You can point separate monitors at the key steps of a flow, but it cannot click through a page.",
-          "不能直接替代。OpenUptime 检测的是单个请求：状态码、必须或不得出现的关键字，以及自定义请求头。你可以为流程中的关键步骤分别建立监控项，但它无法模拟页面点击。",
+          "Not directly. MTCX Tools checks single requests: status code, a keyword that must or must not appear, and custom headers. You can point separate monitors at the key steps of a flow, but it cannot click through a page.",
+          "不能直接替代。MTCX Tools 检测的是单个请求：状态码、必须或不得出现的关键字，以及自定义请求头。你可以为流程中的关键步骤分别建立监控项，但它无法模拟页面点击。",
         ),
       },
       faqPricing("Pingdom"),
@@ -290,12 +290,12 @@ export const TOOLS: Tool[] = [
     name: "StatusCake",
     title: l("StatusCake alternative", "StatusCake 替代方案"),
     description: l(
-      "OpenUptime vs StatusCake: uptime checks, status pages, alerting and self-hosting compared, including what OpenUptime leaves out.",
-      "OpenUptime 与 StatusCake 对比：可用性检测、状态页、告警与自托管，并说明 OpenUptime 没有的功能。",
+      "MTCX Tools vs StatusCake: uptime checks, status pages, alerting and self-hosting compared, including what MTCX Tools leaves out.",
+      "MTCX Tools 与 StatusCake 对比：可用性检测、状态页、告警与自托管，并说明 MTCX Tools 没有的功能。",
     ),
     lede: l(
-      "StatusCake is a hosted service that groups uptime checks with page speed, SSL and domain monitoring. OpenUptime focuses on uptime, incidents and status pages, and is open source.",
-      "StatusCake 是托管服务，把可用性检测与页面速度、SSL 和域名监控放在一起。OpenUptime 专注于可用性、事件和状态页，并且开源。",
+      "StatusCake is a hosted service that groups uptime checks with page speed, SSL and domain monitoring. MTCX Tools focuses on uptime, incidents and status pages, and is open source.",
+      "StatusCake 是托管服务，把可用性检测与页面速度、SSL 和域名监控放在一起。MTCX Tools 专注于可用性、事件和状态页，并且开源。",
     ),
     about: l(
       "StatusCake is a closed-source, hosted monitoring service with a free tier and paid plans. Besides uptime checks it offers page speed, SSL and domain monitoring.",
@@ -305,13 +305,13 @@ export const TOOLS: Tool[] = [
       { topic: l("License", "许可证"), ou: OU.license, them: l("Closed source", "闭源") },
       { topic: l("Where it runs", "运行方式"), ou: OU.hosting, them: l("Hosted by the vendor only", "仅由厂商托管") },
       { topic: l("Uptime checks", "可用性检测"), ou: OU.types, them: l("Website and server uptime checks; see their site for the full list", "网站与服务器可用性检测；完整列表见其官网") },
-      { topic: l("SSL and domain monitoring", "SSL 与域名监控"), ou: l("Domain registration expiry only. OpenUptime does not watch certificate expiry", "仅监控域名注册到期，不监控证书到期"), them: l("Offered", "提供") },
+      { topic: l("SSL and domain monitoring", "SSL 与域名监控"), ou: l("Domain registration expiry only. MTCX Tools does not watch certificate expiry", "仅监控域名注册到期，不监控证书到期"), them: l("Offered", "提供") },
       { topic: l("Status pages", "状态页"), ou: OU.status, them: l("Offered; check their docs for details", "提供；详情请查看其文档") },
       { topic: l("Pricing", "价格"), ou: l("Free to self-host. The hosted service has plans; check the current ones", "自托管免费。托管服务有各档套餐，请查看最新方案"), them: l("Free tier and paid plans; check their current pricing", "有免费档与付费套餐；请查看其最新价格") },
     ],
     theyHave: [
-      l("SSL certificate expiry monitoring. OpenUptime watches domain registration expiry but not certificates.", "SSL 证书到期监控。OpenUptime 监控域名注册到期，但不监控证书。"),
-      l("Page speed testing. OpenUptime records response time only.", "页面速度测试。OpenUptime 只记录响应时间。"),
+      l("SSL certificate expiry monitoring. MTCX Tools watches domain registration expiry but not certificates.", "SSL 证书到期监控。MTCX Tools 监控域名注册到期，但不监控证书。"),
+      l("Page speed testing. MTCX Tools records response time only.", "页面速度测试。MTCX Tools 只记录响应时间。"),
     ],
     bestThem: [
       l("You want certificate expiry warnings from the same tool that checks uptime.", "你希望在检测可用性的同一个工具里收到证书到期提醒。"),
@@ -326,14 +326,14 @@ export const TOOLS: Tool[] = [
       l("List your uptime tests as JSON with a name, a url or hostname, the interval in seconds and the type.", "把可用性测试整理成 JSON，每项包含名称、url 或 hostname、以秒为单位的间隔和类型。"),
       fieldsStep,
       importStep,
-      l("Keep a separate reminder for certificate renewals, since OpenUptime will not warn you about them; add a domain monitor for registration expiry.", "请另外设置证书续期的提醒，OpenUptime 不会就此预警；域名注册到期可添加域名监控。"),
+      l("Keep a separate reminder for certificate renewals, since MTCX Tools will not warn you about them; add a domain monitor for registration expiry.", "请另外设置证书续期的提醒，MTCX Tools 不会就此预警；域名注册到期可添加域名监控。"),
       parallelStep,
     ],
     faq: [
       faqImport("StatusCake"),
       faqGaps("StatusCake"),
       {
-        q: l("Does OpenUptime warn me before an SSL certificate expires?", "OpenUptime 会在 SSL 证书到期前提醒我吗？"),
+        q: l("Does MTCX Tools warn me before an SSL certificate expires?", "MTCX Tools 会在 SSL 证书到期前提醒我吗？"),
         a: l(
           "No. An HTTPS monitor fails once the certificate is rejected, but there is no advance warning. Track renewals with your certificate provider or another tool.",
           "不会。证书被拒绝后，HTTPS 监控才会失败，但没有提前预警。请通过证书提供方或其他工具跟踪续期。",
@@ -347,12 +347,12 @@ export const TOOLS: Tool[] = [
     name: "Uptime Kuma",
     title: l("Uptime Kuma alternative", "Uptime Kuma 替代方案"),
     description: l(
-      "OpenUptime vs Uptime Kuma: two open-source, self-hostable uptime tools compared, with multi-region probes, a hosted option and an API.",
-      "OpenUptime 与 Uptime Kuma 对比：两个开源、可自托管的可用性监控工具，涉及多区域探针、托管选项与 API。",
+      "MTCX Tools vs Uptime Kuma: two open-source, self-hostable uptime tools compared, with multi-region probes, a hosted option and an API.",
+      "MTCX Tools 与 Uptime Kuma 对比：两个开源、可自托管的可用性监控工具，涉及多区域探针、托管选项与 API。",
     ),
     lede: l(
-      "Uptime Kuma is a popular open-source tool you run yourself. OpenUptime is also open source and self-hostable, and differs in multi-region probes, workspaces with roles, an MCP server and an optional hosted service.",
-      "Uptime Kuma 是广受欢迎、需自行运行的开源工具。OpenUptime 同样开源、可自托管，区别在于多区域探针、带角色的工作区、MCP 服务以及可选的托管服务。",
+      "Uptime Kuma is a popular open-source tool you run yourself. MTCX Tools is also open source and self-hostable, and differs in multi-region probes, workspaces with roles, an MCP server and an optional hosted service.",
+      "Uptime Kuma 是广受欢迎、需自行运行的开源工具。MTCX Tools 同样开源、可自托管，区别在于多区域探针、带角色的工作区、MCP 服务以及可选的托管服务。",
     ),
     about: l(
       "Uptime Kuma is an open-source (MIT) monitoring tool that you install and operate yourself. It is known for an easy install and a wide range of monitor types and notification options.",
@@ -367,7 +367,7 @@ export const TOOLS: Tool[] = [
       { topic: l("Teams and automation", "团队与自动化"), ou: l(`${OU.team.en}; ${OU.automation.en}`, `${OU.team.zh}；${OU.automation.zh}`), them: l("Check its docs for user management and API coverage", "用户管理与 API 覆盖范围请查看其文档") },
     ],
     theyHave: [
-      l("More monitor types, among them ping and TLS certificate expiry, which OpenUptime lacks.", "更多监控类型，包括 ping 和 TLS 证书到期，这些 OpenUptime 都没有。"),
+      l("More monitor types, among them ping and TLS certificate expiry, which MTCX Tools lacks.", "更多监控类型，包括 ping 和 TLS 证书到期，这些 MTCX Tools 都没有。"),
       l("A large community and a long history as a self-hosted tool.", "庞大的社区和作为自托管工具的长期积累。"),
     ],
     bestThem: [
@@ -381,16 +381,16 @@ export const TOOLS: Tool[] = [
       l("You want to drive monitoring from scripts or an AI agent.", "你想通过脚本或 AI Agent 驱动监控。"),
     ],
     migrate: [
-      l("Write your Kuma monitors as a JSON list with a name, a url or hostname, the interval in seconds and the type. OpenUptime does not read Kuma's backup file directly.", "把 Kuma 的监控项整理成 JSON 列表，每项包含名称、url 或 hostname、以秒为单位的间隔和类型。OpenUptime 不能直接读取 Kuma 的备份文件。"),
+      l("Write your Kuma monitors as a JSON list with a name, a url or hostname, the interval in seconds and the type. MTCX Tools does not read Kuma's backup file directly.", "把 Kuma 的监控项整理成 JSON 列表，每项包含名称、url 或 hostname、以秒为单位的间隔和类型。MTCX Tools 不能直接读取 Kuma 的备份文件。"),
       fieldsStep,
       importStep,
-      l("Ping, certificate expiry and other types OpenUptime does not have are skipped with a reason; replace ping with a TCP or HTTP check where that makes sense.", "OpenUptime 不支持的 ping、证书到期等类型会连同原因被跳过；合适时可用 TCP 或 HTTP 检测代替 ping。"),
+      l("Ping, certificate expiry and other types MTCX Tools does not have are skipped with a reason; replace ping with a TCP or HTTP check where that makes sense.", "MTCX Tools 不支持的 ping、证书到期等类型会连同原因被跳过；合适时可用 TCP 或 HTTP 检测代替 ping。"),
       l("Monitors that point at private addresses are refused unless you set ALLOW_PRIVATE_TARGETS=true on your instance. Read the self-host docs before turning that on.", "指向内网地址的监控项会被拒绝，除非你在自己的实例上设置 ALLOW_PRIVATE_TARGETS=true。开启前请先阅读自托管文档。"),
       channelsStep,
     ],
     faq: [
       {
-        q: l("Is OpenUptime a drop-in replacement for Uptime Kuma?", "OpenUptime 能直接替换 Uptime Kuma 吗？"),
+        q: l("Is MTCX Tools a drop-in replacement for Uptime Kuma?", "MTCX Tools 能直接替换 Uptime Kuma 吗？"),
         a: l(
           "For HTTP, TCP, DNS, heartbeat and database reachability checks, largely yes. It has no ping or certificate expiry monitor, and Kuma's backup file cannot be imported directly, so plan for a small conversion step.",
           "对于 HTTP、TCP、DNS、心跳和数据库连通性检测，基本可以。它没有 ping 和证书到期监控，也不能直接导入 Kuma 的备份文件，需要做一步简单的格式转换。",
@@ -398,7 +398,7 @@ export const TOOLS: Tool[] = [
       },
       faqImport("Uptime Kuma"),
       {
-        q: l("What does self-hosting OpenUptime need compared with Uptime Kuma?", "和 Uptime Kuma 相比，自托管 OpenUptime 需要什么？"),
+        q: l("What does self-hosting MTCX Tools need compared with Uptime Kuma?", "和 Uptime Kuma 相比，自托管 MTCX Tools 需要什么？"),
         a: l(
           "A Postgres database next to the app. The Docker setup starts both with one compose file. Uptime Kuma's own storage requirements are in its documentation.",
           "应用旁边需要一个 Postgres 数据库。Docker 方案用一个 compose 文件同时启动两者。Uptime Kuma 自身的存储要求请参阅其文档。",
@@ -435,8 +435,8 @@ export const SEGMENTS: Segment[] = [
     name: l("SaaS", "SaaS 产品"),
     title: l("Uptime monitoring for SaaS", "SaaS 产品的可用性监控"),
     description: l(
-      "Monitor a SaaS API, background jobs, databases and a public status page with OpenUptime. Open source, self-hostable.",
-      "用 OpenUptime 监控 SaaS 的 API、后台任务、数据库，并提供公开状态页。开源，可自托管。",
+      "Monitor a SaaS API, background jobs, databases and a public status page with MTCX Tools. Open source, self-hostable.",
+      "用 MTCX Tools 监控 SaaS 的 API、后台任务、数据库，并提供公开状态页。开源，可自托管。",
     ),
     lede: l(
       "A SaaS product fails in more places than its home page. These are the checks that map to a typical stack, and how customers find out about an incident.",
@@ -499,7 +499,7 @@ export const SEGMENTS: Segment[] = [
     ],
     faq: [
       {
-        q: l("How do I monitor background jobs with OpenUptime?", "如何用 OpenUptime 监控后台任务？"),
+        q: l("How do I monitor background jobs with MTCX Tools?", "如何用 MTCX Tools 监控后台任务？"),
         a: l(
           "Create a heartbeat monitor, copy its URL and call it at the end of each run. If a ping is missing after the interval and grace period, the monitor goes down and alerts.",
           "创建心跳监控，复制它的 URL，并在每次任务结束时调用。如果超过间隔和宽限期仍未收到请求，监控会变为故障并发出告警。",
@@ -526,8 +526,8 @@ export const SEGMENTS: Segment[] = [
     name: l("Agencies", "代理机构"),
     title: l("Uptime monitoring for agencies", "代理机构的可用性监控"),
     description: l(
-      "Monitor many client sites from one OpenUptime account: a workspace per client, separate status pages and alert routing.",
-      "用一个 OpenUptime 账号监控多个客户站点：每个客户一个工作区，独立的状态页与告警路由。",
+      "Monitor many client sites from one MTCX Tools account: a workspace per client, separate status pages and alert routing.",
+      "用一个 MTCX Tools 账号监控多个客户站点：每个客户一个工作区，独立的状态页与告警路由。",
     ),
     lede: l(
       "An agency watches many sites that belong to different people. The useful parts are keeping clients apart, sending the right alert to the right person, and showing clients their own status.",
@@ -568,15 +568,15 @@ export const SEGMENTS: Segment[] = [
       },
     ],
     statusPage: l(
-      "Give each client a status page that shows only their monitors, with a title and a light or dark theme. The page can carry a link to the client's own site. Whether the OpenUptime branding can be hidden depends on the hosted plan; a self-hosted instance can always hide it. A client's status page lives under your domain unless you self-host it on theirs.",
-      "为每个客户创建只展示其监控项的状态页，可设置标题以及浅色或深色主题，并附上指向客户官网的链接。能否隐藏 OpenUptime 品牌标识取决于托管套餐；自托管实例始终可以隐藏。除非你把它自托管在客户的域名下，否则客户的状态页位于你的域名之下。",
+      "Give each client a status page that shows only their monitors, with a title and a light or dark theme. The page can carry a link to the client's own site. Whether the MTCX Tools branding can be hidden depends on the hosted plan; a self-hosted instance can always hide it. A client's status page lives under your domain unless you self-host it on theirs.",
+      "为每个客户创建只展示其监控项的状态页，可设置标题以及浅色或深色主题，并附上指向客户官网的链接。能否隐藏 MTCX Tools 品牌标识取决于托管套餐；自托管实例始终可以隐藏。除非你把它自托管在客户的域名下，否则客户的状态页位于你的域名之下。",
     ),
     alerting: l(
       "Alert channels belong to a project, so each client's channels stay separate from the others. Use email for clients, Slack or Telegram for your own team, and add PagerDuty only for the clients whose sites you carry an on-call duty for.",
       "告警渠道属于项目，因此各客户的渠道互不干扰。客户用邮件，自己的团队用 Slack 或 Telegram，只有你承担值班责任的客户才添加 PagerDuty。",
     ),
     limits: [
-      l("Custom domains for status pages are not offered as a setting; a client's status page is served from the OpenUptime address you use.", "状态页的自定义域名目前不是可配置项；客户的状态页使用你所用的 OpenUptime 地址。"),
+      l("Custom domains for status pages are not offered as a setting; a client's status page is served from the MTCX Tools address you use.", "状态页的自定义域名目前不是可配置项；客户的状态页使用你所用的 MTCX Tools 地址。"),
       l("No built-in client reports or PDF exports.", "没有内置的客户报告或 PDF 导出。"),
       l("Import copies monitors only, not channels or status pages.", "导入只复制监控项，不含告警渠道和状态页。"),
     ],
@@ -596,7 +596,7 @@ export const SEGMENTS: Segment[] = [
         ),
       },
       {
-        q: l("Can I remove the OpenUptime branding from a client's status page?", "能去掉客户状态页上的 OpenUptime 品牌标识吗？"),
+        q: l("Can I remove the MTCX Tools branding from a client's status page?", "能去掉客户状态页上的 MTCX Tools 品牌标识吗？"),
         a: l(
           "Status pages have a hide-branding setting. On the hosted service it depends on the plan; on a self-hosted instance it is always available.",
           "状态页有隐藏品牌标识的设置。在托管服务上取决于套餐；在自托管实例上始终可用。",
@@ -609,8 +609,8 @@ export const SEGMENTS: Segment[] = [
     name: l("E-commerce", "电商"),
     title: l("Uptime monitoring for e-commerce", "电商站点的可用性监控"),
     description: l(
-      "Watch a store's product pages, checkout, DNS and order-sync jobs with OpenUptime, and tell shoppers when something is wrong.",
-      "用 OpenUptime 监控店铺的商品页、结账、DNS 和订单同步任务，并在出问题时告知顾客。",
+      "Watch a store's product pages, checkout, DNS and order-sync jobs with MTCX Tools, and tell shoppers when something is wrong.",
+      "用 MTCX Tools 监控店铺的商品页、结账、DNS 和订单同步任务，并在出问题时告知顾客。",
     ),
     lede: l(
       "For a store, a page that loads but cannot sell is as bad as a page that is down. These are the checks that catch that, and the habits that keep alerts useful during a sale.",
@@ -667,13 +667,13 @@ export const SEGMENTS: Segment[] = [
       "把结账故障发到会叫醒人的渠道，例如 PagerDuty 或会推送到手机的 Telegram 群，把响应变慢的提醒发到较安静的 Slack 频道。按监控项路由使这种区分成为可能。",
     ),
     limits: [
-      l("Checks are single requests; OpenUptime cannot walk through a cart and payment flow.", "检测针对单个请求；OpenUptime 无法走完购物车和支付流程。"),
+      l("Checks are single requests; MTCX Tools cannot walk through a cart and payment flow.", "检测针对单个请求；MTCX Tools 无法走完购物车和支付流程。"),
       l("No TLS certificate expiry warning; keep a renewal reminder for your store's certificate.", "没有 TLS 证书到期预警；请为店铺证书另设续期提醒。"),
       l("Checks run at most once a minute.", "检测最快每分钟一次。"),
     ],
     faq: [
       {
-        q: l("Can OpenUptime test the checkout flow?", "OpenUptime 能测试结账流程吗？"),
+        q: l("Can MTCX Tools test the checkout flow?", "MTCX Tools 能测试结账流程吗？"),
         a: l(
           "Not as a whole flow. It checks one request at a time. You can monitor the cart page, the checkout page and your payment callback endpoint as separate monitors and require the right keyword in each.",
           "不能测试完整流程。它每次检测一个请求。你可以把购物车页、结账页和支付回调接口分别建成监控项，并要求各自包含正确的关键字。",
@@ -687,7 +687,7 @@ export const SEGMENTS: Segment[] = [
         ),
       },
       {
-        q: l("Does OpenUptime monitor my SSL certificate expiry?", "OpenUptime 会监控 SSL 证书到期吗？"),
+        q: l("Does MTCX Tools monitor my SSL certificate expiry?", "MTCX Tools 会监控 SSL 证书到期吗？"),
         a: l(
           "No. Set a renewal reminder with your certificate provider or use another tool for it. An HTTPS monitor fails once the certificate is rejected.",
           "不会。请在证书提供方处设置续期提醒，或使用其他工具。证书被拒绝后，HTTPS 监控才会失败。",
@@ -700,8 +700,8 @@ export const SEGMENTS: Segment[] = [
     name: l("DevOps teams", "DevOps 团队"),
     title: l("Uptime monitoring for DevOps teams", "DevOps 团队的可用性监控"),
     description: l(
-      "Dependencies between monitors, multi-region verdicts, escalation until acknowledged, API and MCP: OpenUptime for DevOps teams.",
-      "监控项依赖、多区域判定、未确认时逐级升级、API 与 MCP：面向 DevOps 团队的 OpenUptime。",
+      "Dependencies between monitors, multi-region verdicts, escalation until acknowledged, API and MCP: MTCX Tools for DevOps teams.",
+      "监控项依赖、多区域判定、未确认时逐级升级、API 与 MCP：面向 DevOps 团队的 MTCX Tools。",
     ),
     lede: l(
       "A monitoring tool for operations should page for real outages, stay quiet for noise, and be scriptable. These are the features that map to that, and what you run yourself when you self-host.",
@@ -735,8 +735,8 @@ export const SEGMENTS: Segment[] = [
       {
         title: l("Cron, queues and internal services", "定时任务、队列与内部服务"),
         body: l(
-          "Heartbeat monitors cover scheduled jobs. For services on a private network, self-host OpenUptime and set ALLOW_PRIVATE_TARGETS=true; by default monitors that point at private or loopback addresses are refused, which protects a shared instance. Do this only when you trust every account on it.",
-          "心跳监控覆盖定时任务。对于私有网络里的服务，请自托管 OpenUptime 并设置 ALLOW_PRIVATE_TARGETS=true；默认情况下，指向私有或回环地址的监控项会被拒绝，以保护共享实例。只有当你信任实例上的所有账号时才这样做。",
+          "Heartbeat monitors cover scheduled jobs. For services on a private network, self-host MTCX Tools and set ALLOW_PRIVATE_TARGETS=true; by default monitors that point at private or loopback addresses are refused, which protects a shared instance. Do this only when you trust every account on it.",
+          "心跳监控覆盖定时任务。对于私有网络里的服务，请自托管 MTCX Tools 并设置 ALLOW_PRIVATE_TARGETS=true；默认情况下，指向私有或回环地址的监控项会被拒绝，以保护共享实例。只有当你信任实例上的所有账号时才这样做。",
         ),
         uses: ["heartbeat", "self-hosting"],
       },
@@ -765,7 +765,7 @@ export const SEGMENTS: Segment[] = [
     ],
     faq: [
       {
-        q: l("How does OpenUptime avoid alerting for a single region failing?", "OpenUptime 如何避免因单个区域故障而告警？"),
+        q: l("How does MTCX Tools avoid alerting for a single region failing?", "MTCX Tools 如何避免因单个区域故障而告警？"),
         a: l(
           "With several regions, a run fails only when most of the regions that answered failed, or when the number you set in the monitor settings fail. A tie counts as up.",
           "使用多个区域时，只有多数应答区域失败，或达到你在监控设置里指定的失败数量，本次检测才判定失败。票数相同时视为正常。",

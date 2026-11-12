@@ -3,9 +3,9 @@ import Doc from "../layouts/Doc.astro";
 import { iosInstall } from "../lib/ios";
 const install = iosInstall();
 ---
-<Doc titleZh="iOS 应用" descriptionZh="OpenUptime iOS 应用：在手机上查看监控和故障，接收推送告警并确认故障。" description="The OpenUptime iOS app: see your monitors and incidents, get push alerts and acknowledge an incident from your phone." title="iOS app" updated="2026-10-14">
+<Doc titleZh="iOS 应用" descriptionZh="MTCX Tools iOS 应用：在手机上查看监控和故障，接收推送告警并确认故障。" description="The MTCX Tools iOS app: see your monitors and incidents, get push alerts and acknowledge an incident from your phone." title="iOS app" updated="2026-10-14">
   <div lang="en">
-    <h1>OpenUptime for iOS</h1>
+    <h1>MTCX Tools for iOS</h1>
     <p class="lede">Your monitors, incidents and status in your pocket. Get a push alert the moment a monitor goes down and acknowledge the incident without opening a laptop.</p>
     {install.kind === "soon" && <p><strong>Coming soon.</strong> The app is not public yet. Follow the <a href="/changelog">changelog</a> to hear when it is available.</p>}
     {install.kind === "testflight" && <p><a class="btn" href={install.url}><strong>Join the beta on TestFlight</strong></a></p>}
@@ -19,13 +19,13 @@ const install = iosInstall();
     </ul>
     <h2>Requirements</h2>
     <ul>
-      <li>An OpenUptime account on <a href="/signup">openuptime.app</a>, or your own self-hosted server.</li>
+      <li>An MTCX Tools account on <a href="/signup">this service</a>, or your own self-hosted server.</li>
       <li>An iPhone running a current version of iOS.</li>
     </ul>
-    <p>Questions or problems? Open an issue on <a href="https://github.com/becoolme/openuptime">GitHub</a>. See also our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms</a>.</p>
+    <p>See also our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms</a>.</p>
   </div>
   <div lang="zh-CN">
-    <h1>OpenUptime iOS 应用</h1>
+    <h1>MTCX Tools iOS 应用</h1>
     <p class="lede">监控、故障和状态尽在手机。监控一旦宕机立刻收到推送，不必打开电脑就能确认故障。</p>
     {install.kind === "soon" && <p><strong>即将上线。</strong>应用暂未公开发布，可关注<a href="/changelog">更新日志</a>获取上线消息。</p>}
     {install.kind === "testflight" && <p><a class="btn" href={install.url}><strong>通过 TestFlight 加入测试</strong></a></p>}
@@ -39,9 +39,9 @@ const install = iosInstall();
     </ul>
     <h2>使用要求</h2>
     <ul>
-      <li>在 <a href="/signup">openuptime.app</a> 注册的账号，或你自己部署的服务器。</li>
+      <li>在 <a href="/signup">本服务</a> 注册的账号，或你自己部署的服务器。</li>
       <li>运行较新 iOS 版本的 iPhone。</li>
     </ul>
-    <p>有问题？欢迎在 <a href="https://github.com/becoolme/openuptime">GitHub</a> 提 issue。另见<a href="/privacy">隐私政策</a>和<a href="/terms">服务条款</a>。</p>
+    <p>另见<a href="/privacy">隐私政策</a>和<a href="/terms">服务条款</a>。</p>
   </div>
 </Doc>

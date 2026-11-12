@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useBusy } from "../lib/use-busy";
 import { api, ago, type AlertDelivery, type Channel, type ProjectAlerting } from "../lib/api";
 import { deliveryReason, deliveryState, stateClass } from "../lib/delivery";
+import Select from "./Select";
+import { ModalDialog } from "./ModalDialog";
 
 const TYPES: { id: Channel["type"]; label: string; desc: string }[] = [
   { id: "discord", label: "Discord", desc: "Send alerts through a Discord channel webhook." },
@@ -14,7 +16,7 @@ const TYPES: { id: Channel["type"]; label: string; desc: string }[] = [
   { id: "telegram", label: "Telegram", desc: "Message a chat or group through your bot." },
   { id: "pagerduty", label: "PagerDuty", desc: "Trigger and resolve incidents on a service." },
   { id: "webhook", label: "Webhook", desc: "POST a JSON payload to any URL." },
-  { id: "push", label: "Mobile app (push)", desc: "Notify the OpenUptime app on your team's phones." },
+  { id: "push", label: "Mobile app (push)", desc: "Notify the MTCX mobile app on your team's phones." },
 ];
 const svg = (d: React.ReactNode) => (
   <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
@@ -98,56 +100,43 @@ export default function Alerting() {
     setTesting("");
     loadLog();
   };
-  const enabledN = items?.filter((c) => c.enabled).length ?? 0;
   return (
     <>
       <div className="ph">
-        <div><h1>{t("Alerting")}</h1><p className="muted">{t("Where we tell you when something breaks, and when it’s back.")}</p></div>
+        <div><h1>{t("Alerting")}</h1></div>
         <button className="btn primary" onClick={openAdd}>{t("+ Add channel")}</button>
       </div>
       {err && !adding && <p className="err">{err}</p>}
       {note && <p className="ok-note">{note}</p>}
-      <div className="cols">
-        <div className="col">
-          {items === null && <p className="muted">{t("Loading…")}</p>}
-          {items?.length === 0 ? (
-            <div className="empty"><h3 style={{ fontSize: 28 }}>{t("No channels yet")}</h3><p className="muted" style={{ margin: "6px 0 20px" }}>{t("Add one so you hear about problems first.")}</p>
-              <button className="btn primary" onClick={openAdd}>{t("+ Add channel")}</button></div>
-          ) : items && (
-            <div className="card tbl">
-              <div className="tr th ch-tr"><span>{t("Channel")}</span><span>{t("Destination")}</span><span>{t("Status")}</span><span /></div>
-              {items.map((c) => (
-                <div className="tr ch-tr" key={c.id}>
-                  <div className="nm"><span className="ri ch-ic">{ICONS[c.type] ?? c.type.slice(0, 2).toUpperCase()}</span><div><b style={{ fontWeight: 600 }}>{c.name}</b><small>{c.type}{c.projectId ? ` · ${t("this project only")}` : ""}{c.autoEnable ? ` · ${t("on for new monitors")}` : ""}</small></div></div>
-                  <span className="muted mono ch-dest" title={dest(c)}>{dest(c)}</span>
-                  <span>
-                    <button className="pill-btn" title={c.enabled ? t("Pause") : t("Resume")} onClick={async () => { try { await api.updateChannel(c.id, { enabled: !c.enabled }); await load(); } catch (e) { setErr((e as Error).message); } }}>
-                      <span className={`pill ${c.enabled ? "up" : "pending"}`}>{c.enabled ? t("Active") : t("Paused")}</span>
-                    </button>
-                  </span>
-                  <span className="ch-a">
-                    <button className="btn sm" disabled={testing === c.id} onClick={() => test(c)}>{testing === c.id ? t("Sending…") : t("Test")}</button>
-                    <button className="btn sm" onClick={() => openEdit(c)}>{t("Edit")}</button>
-                    <button className="btn sm" disabled={removing === c.id} onClick={async () => {
-                      if (!confirm(t("Remove this channel?"))) return;
-                      setRemoving(c.id);
-                      try { await api.deleteChannel(c.id); await load(); } catch (e) { setErr((e as Error).message); } finally { setRemoving(""); }
-                    }}>{removing === c.id ? t("Removing…") : t("Remove")}</button>
-                  </span>
-                </div>
-              ))}
+      {items === null && <p className="muted">{t("Loading…")}</p>}
+      {items?.length === 0 ? (
+        <div className="empty"><h3 style={{ fontSize: 28 }}>{t("No channels yet")}</h3>
+          <button className="btn primary" style={{ marginTop: 14 }} onClick={openAdd}>{t("+ Add channel")}</button></div>
+      ) : items && (
+        <div className="card tbl">
+          <div className="tr th ch-tr"><span>{t("Channel")}</span><span>{t("Destination")}</span><span>{t("Status")}</span><span /></div>
+          {items.map((c) => (
+            <div className="tr ch-tr" key={c.id}>
+              <div className="nm"><span className="ri ch-ic">{ICONS[c.type] ?? c.type.slice(0, 2).toUpperCase()}</span><div><b style={{ fontWeight: 600 }}>{c.name}</b><small>{c.type}{c.projectId ? ` · ${t("this project only")}` : ""}{c.autoEnable ? ` · ${t("on for new monitors")}` : ""}</small></div></div>
+              <span className="muted mono ch-dest" title={dest(c)}>{dest(c)}</span>
+              <span>
+                <button className="pill-btn" title={c.enabled ? t("Pause") : t("Resume")} onClick={async () => { try { await api.updateChannel(c.id, { enabled: !c.enabled }); await load(); } catch (e) { setErr((e as Error).message); } }}>
+                  <span className={`pill ${c.enabled ? "up" : "pending"}`}>{c.enabled ? t("Active") : t("Paused")}</span>
+                </button>
+              </span>
+              <span className="ch-a">
+                <button className="btn sm" disabled={testing === c.id} onClick={() => test(c)}>{testing === c.id ? t("Sending…") : t("Test")}</button>
+                <button className="btn sm" onClick={() => openEdit(c)}>{t("Edit")}</button>
+                <button className="btn sm" disabled={removing === c.id} onClick={async () => {
+                  if (!confirm(t("Remove this channel?"))) return;
+                  setRemoving(c.id);
+                  try { await api.deleteChannel(c.id); await load(); } catch (e) { setErr((e as Error).message); } finally { setRemoving(""); }
+                }}>{removing === c.id ? t("Removing…") : t("Remove")}</button>
+              </span>
             </div>
-          )}
+          ))}
         </div>
-        <div className="col">
-          <div className="card cc">
-            <div className="cc-h"><h3>{t("How alerts are sent")}</h3></div>
-            <div className="step"><div className="sn">1</div><div><b>{t("A monitor fails")}</b><small className="faint">{t("After the configured number of consecutive failures.")}</small></div></div>
-            <div className="step"><div className="sn">2</div><div><b>{t("We notify your channels")}</b><small className="faint">{enabledN} {t("active channels receive it, unless a monitor routes to specific ones.")}</small></div></div>
-            <div className="step"><div className="sn">3</div><div><b>{t("We tell you when it’s back")}</b><small className="faint">{t("A recovery message is sent when checks pass again.")}</small></div></div>
-          </div>
-        </div>
-      </div>
+      )}
 
       <div className="card cc" style={{ marginTop: 22 }}>
         <div className="cc-h">
@@ -179,10 +168,12 @@ export default function Alerting() {
         <div className="card cc" style={{ marginTop: 22 }}>
           <div className="cc-h"><h3>{t("Repeat and escalate")}</h3><span className="faint" style={{ fontSize: 13 }}>{t("Until the incident is acknowledged or resolved")}</span></div>
           <label className="fld">{t("Repeat the alert")}
-            <select className="in" value={rules.reminderIntervalMin ?? ""} onChange={(e) => setRules({ ...rules, reminderIntervalMin: e.target.value ? Number(e.target.value) : null })}>
-              <option value="">{t("Off")}</option>
-              {REPEATS.map((n) => <option key={n} value={n}>{t("Every")} {n} {t("min")}</option>)}
-            </select>
+            <Select
+              className="in"
+              value={rules.reminderIntervalMin == null ? "" : String(rules.reminderIntervalMin)}
+              onChange={(v) => setRules({ ...rules, reminderIntervalMin: v ? Number(v) : null })}
+              options={[{ value: "", label: t("Off") }, ...REPEATS.map((n) => ({ value: String(n), label: `${t("Every")} ${n} ${t("min")}` }))]}
+            />
           </label>
           <p className="muted" style={{ margin: "0 0 10px" }}>{t("Repeats go to mobile app channels, at most 10 times.")}</p>
           <button type="button" className="route tog" onClick={() => setRules({ ...rules, reminderEmail: !rules.reminderEmail })}>
@@ -214,53 +205,60 @@ export default function Alerting() {
       )}
 
       {adding && (
-        <div className="modal" onClick={() => setAdding(false)}>
-          <form className="card" onClick={(e) => e.stopPropagation()} onSubmit={add}>
-            <h2 style={{ fontSize: 30 }}>{editId ? t("Edit channel") : t("Add a channel")}</h2>
-            {!editId && <div className="type-grid">
-              {TYPES.filter((x) => x.id !== "push" || push).map((x) => (
-                <button type="button" key={x.id} className={`type-c ${f.type === x.id ? "on" : ""}`} onClick={() => setF({ ...f, type: x.id })}>
-                  <b>{x.label}</b><small>{t(x.desc)}</small>
-                </button>
-              ))}
-            </div>}
-            <label className="fld">{t("Name")}<input className="in" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder={f.type === "push" ? t("Mobile app") : "#ops-alerts"} /></label>
-            {(f.type === "slack" || f.type === "webhook" || f.type === "lark" || f.type === "discord" || f.type === "teams") && (
-              <label className="fld">{t("Webhook URL")}<input className="in mono" type="url" required value={f.url} onChange={(e) => setF({ ...f, url: e.target.value })} placeholder={f.type === "discord" ? "https://discord.com/api/webhooks/…" : f.type === "teams" ? "https://…/workflows/…" : f.type === "lark" ? "https://open.larksuite.com/open-apis/bot/v2/hook/…" : "https://hooks.slack.com/services/…"} /></label>
-            )}
-            {f.type === "ntfy" && <>
-              <label className="fld">{t("ntfy server URL")}<input className="in" type="url" value={f.url} placeholder="https://ntfy.sh" onChange={(e) => setF({ ...f, url: e.target.value })} /></label>
-              <label className="fld">{t("Topic")}<input className="in" required pattern="[A-Za-z0-9_-]{1,64}" value={f.topic} onChange={(e) => setF({ ...f, topic: e.target.value })} /></label>
-              <label className="fld">{t("Access token (optional)")}<input className="in" type="password" value={f.token} onChange={(e) => setF({ ...f, token: e.target.value })} /></label>
-              <label className="fld">{t("Notification priority")}<select className="in" value={f.priority} onChange={(e) => setF({ ...f, priority: e.target.value })}>{["1", "2", "3", "4", "5"].map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
-            </>}
-            {f.type === "lark" && (
-              <label className="fld">{t("Signing secret (optional)")}<input className="in mono" value={f.secret} onChange={(e) => setF({ ...f, secret: e.target.value })} /></label>
-            )}
-            {f.type === "email" && (
-              <label className="fld">{t("Email address")}<input className="in" type="email" required value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} placeholder="oncall@example.com" /></label>
-            )}
-            {f.type === "telegram" && (
-              <>
-                <label className="fld">{t("Bot token")}<input className="in mono" required value={f.botToken} onChange={(e) => setF({ ...f, botToken: e.target.value })} placeholder="123456:ABC…" /></label>
-                <label className="fld">{t("Chat ID")}<input className="in mono" required value={f.chatId} onChange={(e) => setF({ ...f, chatId: e.target.value })} placeholder="-1001234567890" /></label>
-              </>
-            )}
-            {f.type === "pagerduty" && (
-              <label className="fld">{t("Routing key")}<input className="in mono" required value={f.routingKey} onChange={(e) => setF({ ...f, routingKey: e.target.value })} /></label>
-            )}
-            {f.type === "push" && <p className="muted" style={{ margin: 0 }}>{t("Sent to the OpenUptime app of every member of this workspace")}</p>}
-            <button type="button" className="route tog" onClick={() => setF({ ...f, auto: !f.auto })}>
-              <div><b style={{ fontWeight: 500 }}>{t("Turn on for new monitors")}</b><small>{t("Every monitor you create alerts this channel from the start.")}</small></div>
-              <span className={`tg ${f.auto ? "on" : ""}`} />
-            </button>
-            {err && <p className="err">{err}</p>}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" className="btn" onClick={() => setAdding(false)}>{t("Cancel")}</button>
-              <button className="btn primary" disabled={busy}>{busy ? (editId ? t("Saving…") : t("Adding…")) : editId ? t("Save changes") : t("Add channel")}</button>
+        <ModalDialog onClose={() => setAdding(false)} ariaLabel={editId ? t("Edit channel") : t("Add a channel")}>
+          <form className="card mform" onSubmit={add}>
+            <div className="mhead">
+              <h2>{editId ? t("Edit channel") : t("Add a channel")}</h2>
+              <button type="button" className="icon-btn mclose" aria-label={t("Close")} onClick={() => setAdding(false)}>×</button>
+            </div>
+            <div className="mbody">
+              {!editId && <div className="type-grid">
+                {TYPES.filter((x) => x.id !== "push" || push).map((x) => (
+                  <button type="button" key={x.id} className={`type-c ${f.type === x.id ? "on" : ""}`} onClick={() => setF({ ...f, type: x.id })}>
+                    <b>{x.label}</b><small>{t(x.desc)}</small>
+                  </button>
+                ))}
+              </div>}
+              <label className="fld">{t("Name")}<input className="in" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder={f.type === "push" ? t("Mobile app") : "#ops-alerts"} /></label>
+              {(f.type === "slack" || f.type === "webhook" || f.type === "lark" || f.type === "discord" || f.type === "teams") && (
+                <label className="fld">{t("Webhook URL")}<input className="in mono" type="url" required value={f.url} onChange={(e) => setF({ ...f, url: e.target.value })} placeholder={f.type === "discord" ? "https://discord.com/api/webhooks/…" : f.type === "teams" ? "https://…/workflows/…" : f.type === "lark" ? "https://open.larksuite.com/open-apis/bot/v2/hook/…" : "https://hooks.slack.com/services/…"} /></label>
+              )}
+              {f.type === "ntfy" && <>
+                <label className="fld">{t("ntfy server URL")}<input className="in" type="url" value={f.url} placeholder="https://ntfy.sh" onChange={(e) => setF({ ...f, url: e.target.value })} /></label>
+                <label className="fld">{t("Topic")}<input className="in" required pattern="[A-Za-z0-9_-]{1,64}" value={f.topic} onChange={(e) => setF({ ...f, topic: e.target.value })} /></label>
+                <label className="fld">{t("Access token (optional)")}<input className="in" type="password" value={f.token} onChange={(e) => setF({ ...f, token: e.target.value })} /></label>
+                <label className="fld">{t("Notification priority")}<Select className="in" value={f.priority} onChange={(v) => setF({ ...f, priority: v })} options={["1", "2", "3", "4", "5"].map((p) => ({ value: p, label: p }))} /></label>
+              </>}
+              {f.type === "lark" && (
+                <label className="fld">{t("Signing secret (optional)")}<input className="in mono" value={f.secret} onChange={(e) => setF({ ...f, secret: e.target.value })} /></label>
+              )}
+              {f.type === "email" && (
+                <label className="fld">{t("Email address")}<input className="in" type="email" required value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} placeholder="oncall@example.com" /></label>
+              )}
+              {f.type === "telegram" && (
+                <>
+                  <label className="fld">{t("Bot token")}<input className="in mono" required value={f.botToken} onChange={(e) => setF({ ...f, botToken: e.target.value })} placeholder="123456:ABC…" /></label>
+                  <label className="fld">{t("Chat ID")}<input className="in mono" required value={f.chatId} onChange={(e) => setF({ ...f, chatId: e.target.value })} placeholder="-1001234567890" /></label>
+                </>
+              )}
+              {f.type === "pagerduty" && (
+                <label className="fld">{t("Routing key")}<input className="in mono" required value={f.routingKey} onChange={(e) => setF({ ...f, routingKey: e.target.value })} /></label>
+              )}
+              {f.type === "push" && <p className="muted" style={{ margin: 0 }}>{t("Sent to the MTCX mobile app of every member of this workspace")}</p>}
+              <button type="button" className="route tog" onClick={() => setF({ ...f, auto: !f.auto })}>
+                <div><b style={{ fontWeight: 500 }}>{t("Turn on for new monitors")}</b><small>{t("Every monitor you create alerts this channel from the start.")}</small></div>
+                <span className={`tg ${f.auto ? "on" : ""}`} />
+              </button>
+            </div>
+            <div className="mfoot">
+              {err && <p className="err">{err}</p>}
+              <div className="mbtns">
+                <button type="button" className="btn" onClick={() => setAdding(false)}>{t("Cancel")}</button>
+                <button className="btn primary" disabled={busy}>{busy ? (editId ? t("Saving…") : t("Adding…")) : editId ? t("Save changes") : t("Add channel")}</button>
+              </div>
             </div>
           </form>
-        </div>
+        </ModalDialog>
       )}
     </>
   );

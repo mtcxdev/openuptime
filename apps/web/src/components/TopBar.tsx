@@ -1,13 +1,45 @@
+import { useEffect, useState } from "react";
 import { LOCALES, type Locale } from "../lib/i18n";
 import Select from "./Select";
 import { switchLocale } from "../lib/locale-path";
 
-/** Top-bar language select + theme toggle (locale in a cookie read by SSR, theme in localStorage). */
+function readIsDark() {
+  if (typeof document === "undefined") return true;
+  return document.documentElement.dataset.theme !== "light";
+}
+
+/** Top-bar language select + live theme toggle (no full page reload). */
 export default function TopBar() {
   const lang = (document.documentElement.lang as Locale) in LOCALES ? (document.documentElement.lang as Locale) : "en";
-  const dark = document.documentElement.dataset.theme === "dark" ||
-    (!document.documentElement.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
-  const icon = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const [dark, setDark] = useState<boolean>(readIsDark);
+
+  useEffect(() => {
+    const sync = () => setDark(readIsDark());
+    window.addEventListener("mtcx-theme", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("mtcx-theme", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  const toggleTheme = () => {
+    const next = dark ? "light" : "dark";
+    const win = window as Window & { __setTheme?: (t: string) => void };
+    if (win.__setTheme) {
+      win.__setTheme(next);
+    } else {
+      document.documentElement.dataset.theme = next;
+      document.documentElement.style.colorScheme = next;
+      try {
+        localStorage.setItem("ou_theme", next);
+        localStorage.setItem("mtcx-theme", next);
+      } catch {}
+    }
+    setDark(next === "dark");
+  };
+
+  const icon = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.75, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return (
     <>
       <Select
@@ -19,14 +51,11 @@ export default function TopBar() {
         icon={<svg {...icon}><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" /></svg>}
       />
       <button
+        type="button"
         className="icon-btn"
         aria-label="Toggle theme"
-        onClick={() => {
-          const next = dark ? "light" : "dark";
-          document.documentElement.dataset.theme = next;
-          try { localStorage.setItem("ou_theme", next); } catch {}
-          location.reload();
-        }}
+        aria-pressed={!dark}
+        onClick={toggleTheme}
       >
         {dark
           ? <svg {...icon}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>

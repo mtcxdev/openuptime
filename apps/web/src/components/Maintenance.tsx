@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useBusy } from "../lib/use-busy";
 import { api, type Maintenance as Window, type Monitor } from "../lib/api";
 import { t } from "../lib/i18n";
+import Select from "./Select";
 
 const local = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
@@ -35,7 +36,7 @@ export default function Maintenance() {
 
   return (
     <>
-      <div className="ph"><div><h1>{t("Maintenance")}</h1><p className="muted">{t("Checks keep running, but no incidents or alerts are created during a window.")}</p></div></div>
+      <div className="ph"><div><h1>{t("Maintenance")}</h1></div></div>
       <div className="card tbl" style={{ marginBottom: 24 }}>
         <div className="tr th" style={{ gridTemplateColumns: "minmax(0,1.8fr) minmax(0,1fr) 110px 150px" }}><span>{t("Window")}</span><span>{t("Covers")}</span><span>{t("State")}</span><span /></div>
         {items?.length === 0 && <div className="tr" style={{ gridTemplateColumns: "1fr" }}><span className="muted">{t("No maintenance windows.")}</span></div>}
@@ -62,14 +63,16 @@ export default function Maintenance() {
       <form className="card" style={{ padding: 24, display: "grid", gap: 14, maxWidth: 560 }} onSubmit={add}>
         <b>{t("Schedule maintenance")}</b>
         <label className="fld">{t("Name")}<input className="in" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder={t("Database upgrade")} /></label>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 10 }}>
+        <div className="maint-dates">
           <label className="fld">{t("Starts")}<input className="in" type="datetime-local" required value={f.startsAt} onChange={(e) => setF({ ...f, startsAt: e.target.value })} /></label>
           <label className="fld">{t("Ends")}<input className="in" type="datetime-local" required value={f.endsAt} onChange={(e) => setF({ ...f, endsAt: e.target.value })} /></label>
         </div>
         <p className="muted">{t("Start, end and repeat-until inputs use your browser time zone.")}</p>
-        <label className="fld">{t("Repeat")}<select className="in" value={f.frequency} onChange={(e) => setF({ ...f, frequency: e.target.value })}>
-          <option value="none">{t("Does not repeat")}</option><option value="daily">{t("Daily")}</option><option value="weekly">{t("Weekly")}</option>
-        </select></label>
+        <label className="fld">{t("Repeat")}<Select className="in" value={f.frequency} onChange={(v) => setF({ ...f, frequency: v })} options={[
+          { value: "none", label: t("Does not repeat") },
+          { value: "daily", label: t("Daily") },
+          { value: "weekly", label: t("Weekly") },
+        ]} /></label>
         {f.frequency !== "none" && <>
           <label className="fld">{t("Recurrence time zone")}<input className="in" required value={f.timeZone} onChange={(e) => setF({ ...f, timeZone: e.target.value })} placeholder="America/Toronto" /></label>
           <p className="muted">{t("Repeats at the first start's local clock time in this zone. Duration stays fixed; skipped spring times move forward and repeated autumn times use the later occurrence.")}</p>

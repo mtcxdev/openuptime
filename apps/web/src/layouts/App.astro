@@ -2,7 +2,7 @@
 import Base from "./Base.astro";
 import ProjectSwitcher from "../components/ProjectSwitcher";
 import TopBar from "../components/TopBar";
-const { title = "OpenUptime", active = "monitors" } = Astro.props as { title?: string; active?: string };
+const { title = "MTCX Tools", active = "monitors" } = Astro.props as { title?: string; active?: string };
 // The shell is static HTML: no server data. The browser fetches identity, counts and the page's data in parallel (lib/boot.ts)
 // and translates the `data-t` labels, so this file renders the same bytes for everyone.
 const I: Record<string, string> = {
@@ -30,14 +30,21 @@ const workspace = [
 ];
 const crumb = [...main, ...workspace].find(([k]) => k === active)?.[2] ?? title;
 ---
-<Base noindex title={`${title} · OpenUptime`} router={false}>
+<Base noindex title={`${title} · MTCX Tools`} router={false}>
   <div class="app" id="app">
     <div class="scrim" id="scrim"></div>
     <aside class="side">
-      <a class="brand" href="/app">
-        <span class="mk"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg></span>
-        <span class="bn">OpenUptime</span>
-      </a>
+      <div class="side-head">
+        <a class="brand" href="/app">
+          <span class="mk">
+            <img src="/icons/logo-128.png" alt="" width="30" height="30" />
+          </span>
+          <span class="bn">MTCX Tools</span>
+        </a>
+        <button class="icon-btn side-close" id="side-close" type="button" aria-label="Close navigation">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
       <ProjectSwitcher client:only="react" />
       <div class="nl">
       {main.map(([k, href, label]) => (
@@ -94,7 +101,7 @@ const crumb = [...main, ...workspace].find(([k]) => k === active)?.[2] ?? title;
         var el = e.target.closest ? e.target : e.target.parentElement;
         var app = document.getElementById("app");
         if (el.closest("#menu-btn, #tab-more")) return app.classList.toggle("open");
-        if (el.closest("#scrim")) return app.classList.remove("open");
+        if (el.closest("#scrim, #side-close") || el.closest(".side a[data-nav]")) return app.classList.remove("open");
         if (el.closest("#me-btn")) {
           var m = document.getElementById("me-menu");
           m.hidden = !m.hidden;

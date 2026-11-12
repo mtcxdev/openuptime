@@ -1,10 +1,10 @@
 ---
 import Doc from "../../layouts/Doc.astro";
 ---
-<Doc titleZh="备份与恢复 Postgres" descriptionZh="用 pg_dump 和 pg_restore 备份、恢复 Docker 部署的 OpenUptime 数据库，并在依赖备份之前先验证它。" description="Back up and restore the Postgres database of a Docker deployment of OpenUptime with pg_dump and pg_restore, and check a backup before you rely on it." title="Backup and restore" updated="2026-10-17" toc>
+<Doc titleZh="备份与恢复 Postgres" descriptionZh="用 pg_dump 和 pg_restore 备份、恢复 Docker 部署的 MTCX Tools 数据库，并在依赖备份之前先验证它。" description="Back up and restore the Postgres database of a Docker deployment of MTCX Tools with pg_dump and pg_restore, and check a backup before you rely on it." title="Backup and restore" updated="2026-10-17" toc>
   <div lang="en">
     <h1>Backup and restore</h1>
-    <p class="lede">Everything OpenUptime stores lives in one Postgres database. Back that up, keep your <code>.env</code> next to it, and practise a restore before you need one. The commands below are for the Docker deployment from <a href="/docs/self-host">Self-host</a>; the service is called <code>postgres</code> and the database, user and name are all <code>openuptime</code>.</p>
+    <p class="lede">Everything MTCX Tools stores lives in one Postgres database. Back that up, keep your <code>.env</code> next to it, and practise a restore before you need one. The commands below are for the Docker deployment from <a href="/docs/self-host">Self-host</a>; the service is called <code>postgres</code> and the database, user and name are all <code>openuptime</code>.</p>
     <h2 id="backup">Back up</h2>
     <pre><code>docker compose exec -T postgres pg_dump -U openuptime -Fc openuptime &gt; openuptime-$(date +%F).dump</code></pre>
     <ul>
@@ -39,7 +39,7 @@ docker compose exec postgres dropdb -U openuptime openuptime_check</code></pre><
   </div>
   <div lang="zh-CN">
     <h1>备份与恢复</h1>
-    <p class="lede">OpenUptime 的所有数据都存放在一个 Postgres 数据库里。请备份它，把 <code>.env</code> 一并保存，并在真正需要之前演练一次恢复。下面的命令适用于<a href="/docs/self-host">自托管指南</a>里的 Docker 部署：服务名为 <code>postgres</code>，数据库、用户名和库名都是 <code>openuptime</code>。</p>
+    <p class="lede">MTCX Tools 的所有数据都存放在一个 Postgres 数据库里。请备份它，把 <code>.env</code> 一并保存，并在真正需要之前演练一次恢复。下面的命令适用于<a href="/docs/self-host">自托管指南</a>里的 Docker 部署：服务名为 <code>postgres</code>，数据库、用户名和库名都是 <code>openuptime</code>。</p>
     <h2 id="backup-zh">备份</h2>
     <pre><code>docker compose exec -T postgres pg_dump -U openuptime -Fc openuptime &gt; openuptime-$(date +%F).dump</code></pre>
     <ul>

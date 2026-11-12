@@ -32,7 +32,7 @@ const tools: Tool[] = [
   { name: "cancel_maintenance_series", en: "Cancel future occurrences and end active ones, retaining completed history. Owner/admin only.", zh: "取消未来窗口并结束当前窗口，保留已完成历史。仅限所有者或管理员。" },
 ];
 ---
-<Doc titleZh="MCP：让 Claude 管理你的监控" descriptionZh="把 Claude、Cursor 等 MCP 客户端连接到 OpenUptime，用来管理监控、故障和状态页。" description="Connect Claude, Cursor and other MCP clients to OpenUptime to manage monitors, incidents and status pages." title="MCP" updated="2026-10-17" toc>
+<Doc titleZh="MCP：让 Claude 管理你的监控" descriptionZh="把 Claude、Cursor 等 MCP 客户端连接到 MTCX Tools，用来管理监控、故障和状态页。" description="Connect Claude, Cursor and other MCP clients to MTCX Tools to manage monitors, incidents and status pages." title="MCP" updated="2026-10-17" toc>
   <div lang="en">
     <h1>MCP server</h1>
     <p>To monitor another MCP server, see <a href="/docs/mcp-monitors">MCP Uptime Monitor</a>.</p>
@@ -40,12 +40,12 @@ const tools: Tool[] = [
     <pre><code>claude mcp add --transport http openuptime https://openuptime.app/api/mcp</code></pre>
     <p>That is the whole setup for Claude Code; other clients are below. Only want to read a public status page? <a href="#public">No sign-in is needed</a>.</p>
     <h2 id="connect">Connect</h2>
-    <p>OpenUptime speaks the Model Context Protocol over Streamable HTTP at <code>https://openuptime.app/api/mcp</code> (use your own domain if you self-host). Every tool calls the REST API with the caller's own credentials, so scopes and project limits apply unchanged. Any client that supports remote MCP servers works; the common ones are below. Each client opens your browser once to authorize with OAuth.</p>
+    <p>MTCX Tools speaks the Model Context Protocol over Streamable HTTP at <code>https://openuptime.app/api/mcp</code> (use your own domain if you self-host). Every tool calls the REST API with the caller's own credentials, so scopes and project limits apply unchanged. Any client that supports remote MCP servers works; the common ones are below. Each client opens your browser once to authorize with OAuth.</p>
     <h3>Claude Code</h3>
     <pre><code>claude mcp add --transport http openuptime https://openuptime.app/api/mcp</code></pre>
     <p>Then run <code>/mcp</code> inside Claude Code, pick <strong>openuptime</strong> and choose <strong>Authenticate</strong>.</p>
     <h3>Claude Desktop and claude.ai</h3>
-    <p>Open <strong>Settings → Connectors → Add custom connector</strong>, name it OpenUptime and paste <code>https://openuptime.app/api/mcp</code>. Then click <strong>Connect</strong> to authorize.</p>
+    <p>Open <strong>Settings → Connectors → Add custom connector</strong>, name it MTCX Tools and paste <code>https://openuptime.app/api/mcp</code>. Then click <strong>Connect</strong> to authorize.</p>
     <h3>Codex</h3>
     <p>Add the server to <code>~/.codex/config.toml</code>:</p>
     <pre><code is:raw>[mcp_servers.openuptime]
@@ -124,7 +124,7 @@ url = "https://openuptime.app/api/mcp"</code></pre>
       <li><strong>Client only supports stdio</strong>: use <code>npx mcp-remote</code> as shown above.</li>
     </ul>
     <h2 id="skill">Agent skill</h2>
-    <p>Install the OpenUptime skill so your coding agent knows the usual workflows (adding monitors, handling incidents, pausing for maintenance, building status pages):</p>
+    <p>Install the MTCX Tools skill so your coding agent knows the usual workflows (adding monitors, handling incidents, pausing for maintenance, building status pages):</p>
     <pre><code>npx skills add becoolme/openuptime</code></pre>
     <h2 id="registry">MCP Registry</h2>
     <p>The hosted server is listed in the official MCP Registry as <code>app.openuptime/mcp</code>. Self-hosted servers use the same tools; point the client at your own <code>/api/mcp</code> URL.</p>
@@ -135,12 +135,12 @@ url = "https://openuptime.app/api/mcp"</code></pre>
     <pre><code>claude mcp add --transport http openuptime https://openuptime.app/api/mcp</code></pre>
     <p>Claude Code 只需这一行；其他客户端见下文。只想读取公开状态页？<a href="#public-zh">无需登录</a>。</p>
     <h2 id="connect-zh">接入</h2>
-    <p>OpenUptime 通过 Streamable HTTP 提供 Model Context Protocol 服务，地址 <code>https://openuptime.app/api/mcp</code>（自托管请换成你自己的域名）。每个工具都以调用者自己的凭证调用 REST API，因此权限与项目范围保持不变。任何支持远程 MCP 服务的客户端都可以接入，常见的写在下面。每个客户端第一次会打开浏览器，用 OAuth 完成授权。</p>
+    <p>MTCX Tools 通过 Streamable HTTP 提供 Model Context Protocol 服务，地址 <code>https://openuptime.app/api/mcp</code>（自托管请换成你自己的域名）。每个工具都以调用者自己的凭证调用 REST API，因此权限与项目范围保持不变。任何支持远程 MCP 服务的客户端都可以接入，常见的写在下面。每个客户端第一次会打开浏览器，用 OAuth 完成授权。</p>
     <h3>Claude Code</h3>
     <pre><code>claude mcp add --transport http openuptime https://openuptime.app/api/mcp</code></pre>
     <p>然后在 Claude Code 里运行 <code>/mcp</code>，选择 <strong>openuptime</strong>，点 <strong>Authenticate</strong>。</p>
     <h3>Claude Desktop 和 claude.ai</h3>
-    <p>打开 <strong>Settings → Connectors → Add custom connector</strong>，名称填 OpenUptime，地址填 <code>https://openuptime.app/api/mcp</code>，然后点 <strong>Connect</strong> 授权。</p>
+    <p>打开 <strong>Settings → Connectors → Add custom connector</strong>，名称填 MTCX Tools，地址填 <code>https://openuptime.app/api/mcp</code>，然后点 <strong>Connect</strong> 授权。</p>
     <h3>Codex</h3>
     <p>在 <code>~/.codex/config.toml</code> 里添加：</p>
     <pre><code is:raw>[mcp_servers.openuptime]
@@ -219,7 +219,7 @@ url = "https://openuptime.app/api/mcp"</code></pre>
       <li><strong>客户端只支持 stdio</strong>：按上文用 <code>npx mcp-remote</code> 中转。</li>
     </ul>
     <h2 id="skill-zh">Agent 技能</h2>
-    <p>安装 OpenUptime 技能，让编码 Agent 熟悉常见流程（添加监控、处理事件、维护期暂停、创建状态页）：</p>
+    <p>安装 MTCX Tools 技能，让编码 Agent 熟悉常见流程（添加监控、处理事件、维护期暂停、创建状态页）：</p>
     <pre><code>npx skills add becoolme/openuptime</code></pre>
     <h2 id="registry-zh">MCP Registry</h2>
     <p>托管服务已收录在官方 MCP Registry，名称为 <code>app.openuptime/mcp</code>。自托管服务的工具相同，把客户端指向你自己的 <code>/api/mcp</code> 地址即可。</p>
